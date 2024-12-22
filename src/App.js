@@ -5,6 +5,7 @@ import AllProjects from "./pages/AllProjects";
 import AddProject from "./pages/AddProject";
 import OneProject from "./pages/OneProject";
 import AddTask from "./pages/AddTask";
+import TasksBySector from "./pages/TasksBySector";
 import Footer from "./components/Footer";
 
 import "./css/app.css";
@@ -19,6 +20,7 @@ function App() {
       <AddProject />
       <OneProject />
       <AddTask />
+      <TasksBySector />
       <Footer />
     </>
   );
