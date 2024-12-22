@@ -6,7 +6,9 @@ export default function AllProjects() {
   return (
     <div className="allprojects mb-5">
       <div className="bg-titre-list">
-        <h1 className="px-5 pt-5 pb-4" style={{ color: "#7b5844" }}>All projects</h1>
+        <h1 className="px-5 pt-5 pb-4" style={{ color: "#7b5844" }}>
+          All projects
+        </h1>
       </div>
 
       <div className="container mt-5">
