@@ -5,11 +5,11 @@
 <br>
 <br>
 
-#  $${\color{cyan} Workspace }$$
+# $${\color{#1589F0} Workspace }$$
 
 ## ${\color{brown} Objective}$
 
-### $\mathbb{\color{cyan}{Creating \ an \ application \ allows \ you \ to \ organize \ yourself \ as \ a \ team.}}$
+### $\mathbb{\color{#1589F0}{Creating \ an \ application \ allows \ you \ to \ organize \ yourself \ as \ a \ team.}}$
 
 
 ## ${\color{brown} Steps}$
