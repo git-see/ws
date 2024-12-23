@@ -1,27 +1,26 @@
-import Header from "./components/Header";
-import Menu from "./components/Menu";
+import { Routes, Route } from "react-router-dom";
+
 import Home from "./pages/Home";
+import TeamCrud from "./pages/TeamCrud";
 import AllProjects from "./pages/AllProjects";
 import AddProject from "./pages/AddProject";
 import OneProject from "./pages/OneProject";
 import AddTask from "./pages/AddTask";
-import TasksBySector from "./pages/TasksBySector";
-import Footer from "./components/Footer";
-
+import TasksByRole from "./pages/TasksByRole";
 import "./css/app.css";
 
 function App() {
   return (
     <>
-      <Header />
-      <Menu />
-      <Home />
-      <AllProjects />
-      <AddProject />
-      <OneProject />
-      <AddTask />
-      <TasksBySector />
-      <Footer />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/teamcrud" element={<TeamCrud />} />
+        <Route path="/allprojects" element={<AllProjects />} />
+        <Route path="/allprojects/:id" element={<OneProject />} />
+        <Route path="/add-project" element={<AddProject />} />
+        <Route path="/add-task" element={<AddTask />} />
+        <Route path="/allprojects/:id/tasks/:id" element={<TasksByRole />} />
+      </Routes>
     </>
   );
 }

@@ -10,7 +10,7 @@ const Team = () => {
     <div className="container my-5">
       <div className="row">
         <div className="col-12">
-          <h2>Team composition</h2>
+          <h2>Our Team</h2>
           <table className="table table-striped mt-4 mb-5 table-responsive">
             <thead>
               <tr>
