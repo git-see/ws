@@ -23,7 +23,7 @@ export default function Footer() {
               <li>Contact</li>
               <li> &copy; WorkSpace</li>
               <li className="mt-2">
-                <Logows width={40} height={40} />
+                  <Logows width={40} height={40} />
               </li>
             </ul>
           </div>

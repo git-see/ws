@@ -1,3 +1,7 @@
+import { NavLink } from "react-router-dom";
+
+import Menu from "../components/Menu";
+
 export default function OneTask() {
   const data = [
     {
@@ -47,18 +51,30 @@ export default function OneTask() {
   ];
 
   return (
-    <div>
+    <div className="w-100">
+      <div className="col-12">
+        <Menu />
+      </div>
       <div className="d-flex justify-content-between">
         <div>
           <h1 className="px-5 pt-5 pb-4" style={{ color: "#7b5844" }}>
             Dévelopment :
           </h1>
         </div>
-        <div
-          className=" mx-5 px-5 pt-5 fs-5 fst-italic text-decoration-none"
-          style={{ color: "#7b5844" }}
-        >
-          &#10132; Back to project
+        <div className=" mx-5 px-5 pt-5 fs-5">
+          <NavLink
+            to="/allprojects/:id"
+            className="fs-5 fst-italic text-decoration-none"
+            style={{ color: "#7b5844" }}
+            onMouseEnter={(e) => {
+              e.target.style.fontWeight = "bold";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.fontWeight = "normal";
+            }}
+          >
+            &#10132; Back To The Project
+          </NavLink>
         </div>
       </div>
 
@@ -82,7 +98,7 @@ export default function OneTask() {
                       <div>
                         <div className="d-flex justify-content-around fw-bold pt-2">
                           <p>Start :</p>
-                          <p>End :</p>
+                          <p>Delivery :</p>
                         </div>
                         <div className="d-flex justify-content-between fst-italic ">
                           <p>{task.taskstart}</p>

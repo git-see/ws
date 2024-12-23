@@ -1,6 +1,11 @@
+import Menu from "../components/Menu";
+
 export default function AddProject() {
   return (
     <div className="w-100">
+      <div className="col-12">
+        <Menu />
+      </div>
       <div>
         <h1 className="px-5 pt-5 pb-4" style={{ color: "#7b5844" }}>
           Add New Project
@@ -43,7 +48,7 @@ export default function AddProject() {
 
               <div className="form-group mb-4">
                 <label className="text-secondary fs-4" htmlFor="projectend">
-                  End date
+                  Delivery Date
                 </label>
                 <input
                   className="form-control form-control-lg"
