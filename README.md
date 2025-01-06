@@ -26,15 +26,15 @@
 #### $\mathcal{ - \ Create \ the \ server \ with \ Express}$
 #### $\mathcal{ - \ Create \ the \ API \ to \ send \ requests \ in \ SQL : \ use \ Axios}$
 #### $\mathcal{ - \ Create \ the \ CRUD \ (projects \ and \ tasks)}$
-#### $\mathcal{ - \ Create \ a \ CRUD \ for \ the \ Team)}$ <br>
+#### $\mathcal{ - \ Create \ a \ CRUD \ for \ the \ Team}$ <br>
 
-## Authenticatio <br>
+## Authentication <br>
 
 #### $\mathcal{ - \ Create \ an \ authentication \ space}$ <br>
 
 ## Authentication <br>
 
-#### $\mathcal{ - \ Work \ on \ securty}$ <br>
+#### $\mathcal{ - \ Work \ on \ security}$ <br>
 
 ## Deployment <br>
 
