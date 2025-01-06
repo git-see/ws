@@ -11,13 +11,37 @@
 
 ### $\mathbb{\color{#1589F0}{Creating \ an \ application \ allows \ you \ to \ organize \ yourself \ as \ a \ team.}}$
 
-
 ## ${\color{brown} Steps}$
+
+## The front-end <br>
+
 #### $\mathcal{ - \ Install \ the \ packages}$
 #### $\mathcal{ - \ Set \ up \ the \ structure \ : \ components, \ pages, \ css}$
 #### $\mathcal{ - \ Create \ the \ routes}$
-#### $\mathcal{ - \ Add \ the \ useState \ and \ useEffect \ hooks}$
-#### $\mathcal{ - \ In \ progress...  }$
+#### $\mathcal{ - \ Add \ the \ useState \ and \ useEffect \ hooks}$ <br>
+
+## The back-end <br>
+
+#### $\mathcal{ - \ Create \ two \ folders : \ client \ and \ server}$
+#### $\mathcal{ - \ Create \ the \ server \ with \ Express}$
+#### $\mathcal{ - \ Create \ the \ API \ to \ send \ requests \ in \ SQL : \ use \ Axios}$
+#### $\mathcal{ - \ Create \ the \ CRUD \ (projects \ and \ tasks)}$
+#### $\mathcal{ - \ Create \ a \ CRUD \ for \ the \ Team)}$ <br>
+
+## Authenticatio <br>
+
+#### $\mathcal{ - \ Create \ an \ authentication \ space}$ <br>
+
+## Authentication <br>
+
+#### $\mathcal{ - \ Work \ on \ securty}$ <br>
+
+## Deployment <br>
+
+#### $\mathcal{ - \ Deploy \ on \ GitHub}$
+
+
+
 
 <br>
 <br>
