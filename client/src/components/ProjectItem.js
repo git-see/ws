@@ -1,40 +1,21 @@
+import { useState, useEffect } from "react";
+
+import axios from "axios";
+
 export default function ProjectItem(props) {
-  const project = [
-    {
-      projectid: 1,
-      projectname: "Speed cars",
-      projectstart: "16/05/2024 08h00",
-      projectend: "14/10/2024 14h00",
-      projectstatus: "Completed",
-      projectcomment: "Showcase website- Annual maintenance",
-    },
-    {
-      projectid: 2,
-      projectname: "NiceCity",
-      projectstart: "16/05/2024 14h00",
-      projectend: "18/08/2024 12h00",
-      projectstatus: "Completed",
-      projectcomment:
-        "Website redesign for the Nice City town hall- Annual maintenance",
-    },
-    {
-      projectid: 3,
-      projectname: "Nature & Me",
-      projectstart: "20/12/2024 08h00",
-      projectend: "10/10/2025 14:00",
-      projectstatus: "In Progress",
-      projectcomment:
-        "Optimizing total ecology: web hosting, design, development",
-    },
-    {
-      projectid: 4,
-      projectname: "Hairdressing Bar",
-      projectstart: "27/12/2024 08h00",
-      projectend: "03/03/2025 14:00",
-      projectstatus: "In Progress",
-      projectcomment: "Showcase website",
-    },
-  ];
+  const [project, setProject] = useState([]);
+
+  // Retrieve data from API before processing it
+  const loadproject = async () => {
+    // Store the result of the HTTP GET request / Wait for the Axios query to complete
+    const response = await axios.get("http://localhost:8000/api/get");
+    // Store data :
+    setProject(response.data);
+  };
+
+  useEffect(() => {
+    loadproject();
+  }, []);
 
   return (
     <tbody>
