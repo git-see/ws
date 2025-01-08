@@ -53,10 +53,10 @@ export default function AddTask() {
                 id="taskpic"
               >
                 <option value="">Select a person &#9207;</option>
-                <option value="">John</option>
-                <option value="">Siam</option>
-                <option value="">Melody</option>
-                <option value="">Tom</option>
+                <option value="John">John</option>
+                <option value="Siam">Siam</option>
+                <option value="Melody">Melody</option>
+                <option value="Tom">Tom</option>
               </select>
             </div>
 

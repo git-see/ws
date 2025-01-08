@@ -16,7 +16,3 @@ export default function Header() {
     </div>
   );
 }
-
-// mongosh "mongodb+srv://cluster0.b4z5o.mongodb.net/" --apiVersion 1 --username willnpm
-
-// mongodb+srv://willnpm:<db_password>@cluster0.b4z5o.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0

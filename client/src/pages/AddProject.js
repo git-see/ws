@@ -1,5 +1,5 @@
-import { useState} from "react";
-import { useNavigate} from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import axios from "axios";
 import Menu from "../components/Menu";
@@ -11,52 +11,29 @@ export default function AddProject() {
   const [projectcomment, setProjectcomment] = useState("");
   const navigate = useNavigate();
 
-/*
   const handleClick = (e) => {
-    e.preventDefault(); // Empêcher le rechargement de la page
+    e.preventDefault(); // Prevent page reloading
     axios
-      .post("http://localhost:8500/api/post", {   projectname,
+      .post("http://localhost:8000/api/post", {
+        projectname,
         projectstart,
         projectend,
-        projectcomment, }) // Corrigez l'URL ici
-      .then(() => {
-        setProjectname("");
-        setProjectstart("");
-        setProjectend("");
-        setProjectcomment("");
-        navigate("/");  // Redirigez l'utilisateur après l'ajout
+        projectcomment,
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          // Check if the response is successful
+          setProjectname("");
+          setProjectstart("");
+          setProjectend("");
+          setProjectcomment("");
+          navigate("/allprojects"); // Redirect user to AllProjects.js after adding
+        }
       })
       .catch((error) => {
-        console.error(
-          "Il y a eu une erreur lors de l'ajout de l'utilisateur!",
-          error
-        );
+        console.error("There was an error adding the project !", error);
       });
   };
-*/
-
-const handleClick = (e) => {
-  e.preventDefault(); // Empêcher le rechargement de la page
-  axios
-    .post("http://localhost:8500/api/post", {   
-      projectname,
-      projectstart,
-      projectend,
-      projectcomment,
-    })
-    .then((response) => { // Ajoutez cette ligne pour gérer la réponse
-      if (response.status === 200) { // Vérifiez si la réponse est un succès
-        setProjectname("");
-        setProjectstart("");
-        setProjectend("");
-        setProjectcomment("");
-        navigate("/allprojects"); // Redirigez l'utilisateur vers AllProjects.js après l'ajout
-      }
-    })
-    .catch((error) => {
-      console.error("Il y a eu une erreur lors de l'ajout du projet!", error);
-    });
-};
 
   return (
     <div className="w-100">
@@ -147,7 +124,9 @@ const handleClick = (e) => {
                   type="submit"
                   className="btn border-0 px-3 py-4 mx-3 w-25 text-white text-decoration-none"
                   style={{ backgroundColor: "#3b798c" }}
-                >Add Project</button>
+                >
+                  Add Project
+                </button>
               </div>
             </form>
           </div>

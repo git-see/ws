@@ -3,7 +3,52 @@ import { NavLink } from "react-router-dom";
 import Menu from "../components/Menu";
 
 export default function OneTask() {
-  const data = [];
+  const data = [
+    {
+      taskid: 1,
+      taskname: "Development",
+      taskobjective: "Create back-end with Node.js and Express.js",
+      taskpic: "Melody",
+      taskstart: "16/05/2024 14h00",
+      taskend: "18/07/2025 12h00",
+      taskcomment:
+        "Tools: design with Figma and images with TinyPNG and favor dark but ecological colors: selection of 3 colors from green to brown",
+      taskstatus: "In Progress",
+    },
+    {
+      taskid: 2,
+      taskname: "Development",
+      taskobjective: "Create back-end with Node.js and Express.js",
+      taskpic: "Melody",
+      taskstart: "16/05/2024 14h00",
+      taskend: "18/07/2025 12h00",
+      taskcomment:
+        "Tools: design with Figma and images with TinyPNG and favor dark but ecological colors: selection of 3 colors from green to brown",
+      taskstatus: "In Progress",
+    },
+    {
+      taskid: 3,
+      taskname: "Development",
+      taskobjective: "Create back-end with Node.js and Express.js",
+      taskpic: "Melody",
+      taskstart: "16/05/2024 14h00",
+      taskend: "18/07/2025 12h00",
+      taskcomment:
+        "Tools: design with Figma and images with TinyPNG and favor dark but ecological colors: selection of 3 colors from green to brown",
+      taskstatus: "In Progress",
+    },
+    {
+      taskid: 4,
+      taskname: "Development",
+      taskobjective: "Create back-end with Node.js and Express.js",
+      taskpic: "Melody",
+      taskstart: "16/05/2024 14h00",
+      taskend: "18/07/2025 12h00",
+      taskcomment:
+        "Tools: design with Figma and images with TinyPNG and favor dark but ecological colors: selection of 3 colors from green to brown",
+      taskstatus: "In Progress",
+    },
+  ];
 
   return (
     <div className="w-100">

@@ -1,7 +1,12 @@
 import Menu from "../components/Menu";
 
 export default function TeamCrud() {
-  const data = [];
+  const data = [
+    { role: "Manager", namet: "John" },
+    { role: "Designer", namet: "Siam" },
+    { role: "Web Developer", namet: "Melody" },
+    { role: "Community Manager", namet: "Tom" },
+  ];
 
   return (
     <div className="w-100">

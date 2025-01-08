@@ -1,14 +1,10 @@
-import { useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+
 import Menu from "../components/Menu";
+
 import ProjectItem from "../components/ProjectItem";
 
 export default function AllProjects() {
-  const navigate = useNavigate(); // Initialiser useNavigate
-
-  const handleAddProject = () => {
-    navigate("/add-project"); // Naviguer vers '/add-project'
-  };
-
   return (
     <div className="w-100">
       <div>
@@ -26,13 +22,13 @@ export default function AllProjects() {
         <div className="row">
           <div className="col-12">
             <div className="justify-content-center text-center mb-5 pb-2">
-              <button
-                onClick={handleAddProject} // Appeler la fonction lors du clic
+              <NavLink
+                to="/add-project"
                 className="btn border-0 text-white px-4 py-2 w-25"
                 style={{ backgroundColor: "#3b798c" }}
               >
                 Add New Project
-              </button>
+              </NavLink>
             </div>
             <table className="table table-striped mt-4 mb-5">
               <thead>

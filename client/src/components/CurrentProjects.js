@@ -1,5 +1,19 @@
 const CurrentProjects = () => {
-  const data = [];
+  const data = [
+    {
+      projectid: 1,
+      projectname: "Nature & Me",
+      projectend: "10/10/2025 14:00",
+      projectcomment:
+        "Optimizing total ecology: web hosting, design, development",
+    },
+    {
+      projectid: 2,
+      projectname: "Hairdressing Bar",
+      projectend: "03/03/2025 14:00",
+      projectcomment: "Showcase website",
+    },
+  ];
 
   return (
     <div>
