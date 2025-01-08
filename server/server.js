@@ -36,9 +36,30 @@ app.post("/api/post", (req, res) => {
     (error, result) => {
       if (error) {
         console.log(error);
-        return res.status(500).send("Erreur lors de l'ajout du projet."); // Renvoie une erreur en cas d'échec
+        return res.status(500).send("Error: The project could not be created");
       }
-      res.status(200).send("Projet ajouté avec succès."); // Renvoie un succès
+      res.status(200).send("Project created successfully !");
+    }
+  );
+});
+
+// Update a project
+app.put("/api/update/:id", (req, res) => {
+  const projectId = req.params.id;
+  const { projectname, projectstart, projectend, projectcomment } = req.body;
+
+  const request =
+    "UPDATE project SET projectname = ?, projectstart = ?, projectend = ?, projectcomment = ? WHERE projectid = ?";
+
+  db.query(
+    request,
+    [projectname, projectstart, projectend, projectcomment, projectId],
+    (error, result) => {
+      if (error) {
+        console.log(error);
+        return res.status(500).send("Error: The project could not be updated");
+      }
+      res.status(200).send("Project successfully updated !");
     }
   );
 });

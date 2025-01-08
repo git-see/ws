@@ -16,7 +16,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/teamcrud" element={<TeamCrud />} />
         <Route path="/allprojects" element={<AllProjects />} />
-        <Route path="/allprojects/:id" element={<OneProject />} />
+        <Route path="/oneproject/:projectId" element={<OneProject />} />
         <Route path="/add-project" element={<AddProject />} />
         <Route path="/add-task" element={<AddTask />} />
         <Route path="/allprojects/:id/tasks/:id" element={<TasksByRole />} />
