@@ -80,7 +80,15 @@ export default function OneProject() {
                         <tr key={task.taskid}>
                           <td>{""}</td>
                           <td>{task.taskobjective}</td>
-                          <td>{task.taskpic}</td>
+                          <td
+                            className="text-primary"
+                            onClick={() =>
+                              navigate(`/${projectId}/${task.taskid}`)
+                            }
+                            style={{ cursor: "pointer" }}
+                          >
+                            {task.userpic}
+                          </td>
                           <td>{task.taskstart}</td>
                           <td>{task.taskend}</td>
                           <td
@@ -114,13 +122,17 @@ export default function OneProject() {
 
                       return (
                         <tr key={task.taskid}>
-                          <td className="fs-5 fw-bold">
-                            <button className="btn border border-secondary py-2">
-                              {task.taskrole}
-                            </button>
-                          </td>
+                          <td className="fs-5 fw-bold">{task.taskrole}</td>
                           <td>{task.taskobjective}</td>
-                          <td>{task.taskpic}</td>
+                          <td
+                            className="text-primary"
+                            onClick={() =>
+                              navigate(`/${projectId}/${task.taskid}`)
+                            }
+                            style={{ cursor: "pointer" }}
+                          >
+                            {task.userpic}
+                          </td>
                           <td>{task.taskstart}</td>
                           <td>{task.taskend}</td>
 

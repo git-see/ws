@@ -20,14 +20,14 @@ export default function AddTask() {
         <div className="row d-flex justify-content-center px-3">
           <form className="px-5 py-5">
             <div className="form-group mb-4">
-              <label className="text-secondary fs-4" htmlFor="taskname">
-                Task
+              <label className="text-secondary fs-4" htmlFor="taskrole">
+                Role
               </label>
               <input
                 className="form-control form-control-lg"
                 type="text"
-                name="taskname"
-                id="taskname"
+                name="taskrole"
+                id="taskrole"
               />
             </div>
 
