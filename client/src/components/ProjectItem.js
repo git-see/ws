@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import axios from "axios";
 
@@ -14,6 +15,8 @@ export default function ProjectItem(props) {
     projectend: "",
     projectcomment: "",
   });
+
+  const navigate = useNavigate();
 
   // Retrieve data from API before processing it
   const loadproject = async () => {
@@ -54,6 +57,11 @@ export default function ProjectItem(props) {
     ); // Sending modified data to the API
     setEditingProjectId(null); // Reset project ID after saving
     loadproject(); // Reload projects with changes
+  };
+
+  // Show selected project
+  const viewProject = (projectId) => {
+    navigate(`/oneproject/${projectId}`);
   };
 
   return (
@@ -156,6 +164,7 @@ export default function ProjectItem(props) {
                   Edit
                 </button>
                 <button
+                  onClick={() => viewProject(project.projectid)}
                   className="btn border-0 px-3 py-2 mx-2 w-50 text-white text-decoration-none"
                   style={{ backgroundColor: "#3b798c" }}
                 >

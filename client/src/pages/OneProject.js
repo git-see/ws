@@ -23,7 +23,7 @@ export default function OneProject() {
     fetchTasks();
   }, [projectId]);
 
-  const uniqueTaskNames = {};
+  const uniqueRoles = {}; // Object to track displayed roles
 
   return (
     <div className="w-100 home">
@@ -71,9 +71,11 @@ export default function OneProject() {
                 </thead>
                 <tbody>
                   {tasks.map((task) => {
-                    // If the current task name already exists
-                    if (uniqueTaskNames[task.taskname]) {
-                      // If true, display an empty string
+                    const roleKey = task.taskrole; // Get the role name
+
+                    // If the role has already been displayed
+                    if (uniqueRoles[roleKey]) {
+                      // Display an empty string for the role
                       return (
                         <tr key={task.taskid}>
                           <td>{""}</td>
@@ -99,8 +101,8 @@ export default function OneProject() {
                         </tr>
                       );
                     } else {
-                      // Otherwise, add the task name
-                      uniqueTaskNames[task.taskname] = true;
+                      // If not displayed yet, mark it as displayed
+                      uniqueRoles[roleKey] = true;
 
                       // Show color based on task status
                       let statusColor = "";
@@ -113,7 +115,9 @@ export default function OneProject() {
                       return (
                         <tr key={task.taskid}>
                           <td className="fs-5 fw-bold">
-                            <button>{task.taskname}</button>
+                            <button className="btn border border-secondary py-2">
+                              {task.taskrole}
+                            </button>
                           </td>
                           <td>{task.taskobjective}</td>
                           <td>{task.taskpic}</td>

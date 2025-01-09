@@ -64,5 +64,24 @@ app.put("/api/update/:id", (req, res) => {
   );
 });
 
+// Show selected project
+app.get("/api/get-tasks/:projectId", (req, res) => {
+  const projectId = req.params.projectId;
+  const request = `
+      SELECT task.*, role.rolename AS taskrole, project.projectname 
+      FROM task 
+      JOIN role ON task.role_roleid = role.roleid
+      JOIN project ON task.project_projectid = project.projectid  
+      WHERE task.project_projectid = ?
+  `;
+  db.query(request, [projectId], (error, result) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).send("Erreur lors de la récupération des tâches.");
+    }
+    res.send(result);
+  });
+});
+
 // Start on port 8000
 app.listen(8000);
