@@ -13,12 +13,35 @@
 
 
 ## ${\color{brown} Steps}$
+
+### Front-end
 #### $\mathcal{ - \ Install \ the \ packages}$
 #### $\mathcal{ - \ Set \ up \ the \ structure \ : \ components, \ pages, \ css}$
 #### $\mathcal{ - \ Create \ the \ routes}$
 #### $\mathcal{ - \ Add \ the \ useState \ and \ useEffect \ hooks}$
-#### $\mathcal{ - \ In \ progress...  }$
+#### $\mathcal{ - \ Create \ pages \ and \ components}$
 
+### Back-end
+#### $\mathcal{ - \ Create \ two \ folders \  client \ and \ server}$
+#### $\mathcal{ - \ Create \ database \ and \ tables}$
+#### $\mathcal{ - \ Initialize \ the \ project, \ install  \ the \ packages, \ create \ the \ Express \ application \ and \ launch \ the \ project}$
+#### $\mathcal{ - \ Connect  \ the  \ database \  with \  the \  server \  and  \ create  \ an \  API}$
+#### $\mathcal{ - \ Make \  a \  CRUD  \ of \  the \  projects \  and  \ tasks}$
+#### $\mathcal{ - \ Make \  a  \ CRUD  \ of  \ the \  team}$
+
+### Authentication
+#### $\mathcal{ - \ Create \ an \ authentication \ space}$
+
+### Security
+#### $\mathcal{ - \ Work  \ on \  the  \ security \  of  \ the \  application, \  do  \ tests, \  validate}$
+
+### Deployment
+#### $\mathcal{ - \ Deploy \  the \  project \  management \  application \  on \  GitHub}$
+
+
+
+<br>
+<br>
 <br>
 <br>
 _________________________________________________________________
