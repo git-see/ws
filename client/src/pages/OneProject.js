@@ -1,77 +1,29 @@
-import { NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate, NavLink } from "react-router-dom";
 
+import axios from "axios";
 import Menu from "../components/Menu";
 
 export default function OneProject() {
-  const data = [
-    {
-      taskid: 1,
-      taskrole: "Design",
-      taskobjective:
-        "Research into modern ecological tools and methods in website design",
-      taskstart: "16/05/2024 08h00",
-      taskend: "16/05/2025 12h00",
-      taskpic: "Siam",
-      taskstatus: "Completed",
-    },
-    {
-      taskid: 1,
-      taskrole: "Design",
-      taskobjective: "Create a logo in an eco-friendly way",
-      taskstart: "16/05/2024 14h00",
-      taskend: "18/05/2025 12h00",
-      taskpic: "Siam",
-      taskstatus: "Completed",
-    },
-    {
-      taskid: 1,
-      taskrole: "Design",
-      taskobjective: "Create the site model",
-      taskstart: "18/05/2024 14h00",
-      taskend: "01/06/2025 12h00",
-      taskpic: "Siam",
-      taskstatus: "In Progress",
-    },
-    {
-      taskid: 2,
-      taskrole: "Development",
-      taskobjective:
-        "Research into modern ecological tools and methods in website development",
-      taskstart: "16/05/2024 08h00",
-      taskend: "16/05/2025 12h00",
-      taskpic: "Melody",
-      taskstatus: "Completed",
-    },
-    {
-      taskid: 2,
-      taskrole: "Development",
-      taskobjective: "Create back-end with Node.js and Express.js",
-      taskstart: "16/05/2024 14h00",
-      taskend: "18/07/2025 12h00",
-      taskpic: "Melody",
-      taskstatus: "In Progress",
-    },
-    {
-      taskid: 3,
-      taskrole: "Community Management",
-      taskobjective: "Prepare the marketing plan",
-      taskstart: "16/05/2024 08h00",
-      taskend: "16/06/2025 12h00",
-      taskpic: "Tom",
-      taskstatus: "In Progress",
-    },
-    {
-      taskid: 3,
-      taskrole: "Community Management",
-      taskobjective: "Prepare communication on social networks",
-      taskstart: "17/05/2024 14h00",
-      taskend: "18/05/2025 12h00",
-      taskpic: "Tom",
-      taskstatus: "Completed",
-    },
-  ];
+  const { projectId } = useParams(); // Retrieve project ID from URL
+  const [tasks, setTasks] = useState([]);
+  const [projectName, setProjectName] = useState("");
+  const navigate = useNavigate();
 
-  const uniqueTaskRoles = {};
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const response = await axios.get(
+        `http://localhost:8000/api/get-tasks/${projectId}`
+      );
+      setTasks(response.data);
+      if (response.data.length > 0) {
+        setProjectName(response.data[0].projectname); // Retrieve project name from first task
+      }
+    };
+    fetchTasks();
+  }, [projectId]);
+
+  const uniqueTaskNames = {};
 
   return (
     <div className="w-100 home">
@@ -82,9 +34,10 @@ export default function OneProject() {
         <div className="d-flex justify-content-between">
           <div>
             <h1 className="px-5 pt-5 pb-4" style={{ color: "#7b5844" }}>
-              Nature & Me
+              {projectName}
             </h1>
           </div>
+
           <div className=" mx-5 px-5 pt-5">
             <NavLink
               to="/allprojects"
@@ -117,13 +70,13 @@ export default function OneProject() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.map((task) => {
+                  {tasks.map((task) => {
                     // If the current task name already exists
-                    if (uniqueTaskRoles[task.taskrole]) {
+                    if (uniqueTaskNames[task.taskname]) {
                       // If true, display an empty string
                       return (
                         <tr key={task.taskid}>
-                          <td className="fw-bold">{""}</td>
+                          <td>{""}</td>
                           <td>{task.taskobjective}</td>
                           <td>{task.taskpic}</td>
                           <td>{task.taskstart}</td>
@@ -147,7 +100,7 @@ export default function OneProject() {
                       );
                     } else {
                       // Otherwise, add the task name
-                      uniqueTaskRoles[task.taskrole] = true;
+                      uniqueTaskNames[task.taskname] = true;
 
                       // Show color based on task status
                       let statusColor = "";
@@ -159,8 +112,8 @@ export default function OneProject() {
 
                       return (
                         <tr key={task.taskid}>
-                          <td className="ttaskcolor fs-5 fw-bold">
-                            <button>{task.taskrole}</button>
+                          <td className="fs-5 fw-bold">
+                            <button>{task.taskname}</button>
                           </td>
                           <td>{task.taskobjective}</td>
                           <td>{task.taskpic}</td>
@@ -174,7 +127,7 @@ export default function OneProject() {
                                 task.taskstatus === "Completed"
                                   ? "bold"
                                   : "normal",
-                              color: statusColor, // statusColor
+                              color: statusColor,
                             }}
                           >
                             {task.taskstatus}
@@ -185,14 +138,14 @@ export default function OneProject() {
                   })}
                 </tbody>
               </table>
-
-              <div className="justify-content-center text-center mt-5 ">
+              <div className="justify-content-center text-center mt-5">
                 <button
                   type="submit"
                   className="btn border-0 mb-5 text-white px-4 py-2 w-25"
                   style={{ backgroundColor: "#3b798c" }}
+                  onClick={() => navigate(`/add-task`)}
                 >
-                  Add New Objective
+                  Add New Task
                 </button>
               </div>
             </div>
