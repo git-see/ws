@@ -68,16 +68,17 @@ app.put("/api/update/:id", (req, res) => {
 app.get("/api/get-tasks/:projectId", (req, res) => {
   const projectId = req.params.projectId;
   const request = `
-      SELECT task.*, role.rolename AS taskrole, project.projectname 
+      SELECT task.*, role.rolename AS taskrole, project.projectname, user.userpic 
       FROM task 
       JOIN role ON task.role_roleid = role.roleid
-      JOIN project ON task.project_projectid = project.projectid  
+      JOIN project ON task.project_projectid = project.projectid
+      LEFT JOIN user ON task.role_roleid = user.user_roleid
       WHERE task.project_projectid = ?
   `;
   db.query(request, [projectId], (error, result) => {
     if (error) {
       console.error(error);
-      return res.status(500).send("Erreur lors de la récupération des tâches.");
+      return res.status(500).send("Error: Tasks cannot be retrieved");
     }
     res.send(result);
   });
