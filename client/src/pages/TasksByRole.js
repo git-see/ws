@@ -1,54 +1,35 @@
-import { NavLink } from "react-router-dom";
-
+import { useEffect, useState } from "react";
+import { useParams, NavLink } from "react-router-dom";
+import axios from "axios";
 import Menu from "../components/Menu";
 
-export default function OneTask() {
-  const data = [
-    {
-      taskid: 1,
-      taskname: "Development",
-      taskobjective: "Create back-end with Node.js and Express.js",
-      taskpic: "Melody",
-      taskstart: "16/05/2024 14h00",
-      taskend: "18/07/2025 12h00",
-      taskcomment:
-        "Tools: design with Figma and images with TinyPNG and favor dark but ecological colors: selection of 3 colors from green to brown",
-      taskstatus: "In Progress",
-    },
-    {
-      taskid: 2,
-      taskname: "Development",
-      taskobjective: "Create back-end with Node.js and Express.js",
-      taskpic: "Melody",
-      taskstart: "16/05/2024 14h00",
-      taskend: "18/07/2025 12h00",
-      taskcomment:
-        "Tools: design with Figma and images with TinyPNG and favor dark but ecological colors: selection of 3 colors from green to brown",
-      taskstatus: "In Progress",
-    },
-    {
-      taskid: 3,
-      taskname: "Development",
-      taskobjective: "Create back-end with Node.js and Express.js",
-      taskpic: "Melody",
-      taskstart: "16/05/2024 14h00",
-      taskend: "18/07/2025 12h00",
-      taskcomment:
-        "Tools: design with Figma and images with TinyPNG and favor dark but ecological colors: selection of 3 colors from green to brown",
-      taskstatus: "In Progress",
-    },
-    {
-      taskid: 4,
-      taskname: "Development",
-      taskobjective: "Create back-end with Node.js and Express.js",
-      taskpic: "Melody",
-      taskstart: "16/05/2024 14h00",
-      taskend: "18/07/2025 12h00",
-      taskcomment:
-        "Tools: design with Figma and images with TinyPNG and favor dark but ecological colors: selection of 3 colors from green to brown",
-      taskstatus: "In Progress",
-    },
-  ];
+export default function TasksByRole() {
+  const { projectId, roleId } = useParams();
+  const [tasks, setTasks] = useState([]);
+  const [project, setProject] = useState();
+  const [role, setRole] = useState();
+
+  useEffect(() => {
+    const fetchTasksByRole = async () => {
+      // Fetch tasks based on role
+      const response = await axios.get(
+        `http://localhost:8000/api/get-tasks-by-role/${projectId}/${roleId}`
+      );
+      setTasks(response.data); // Set tasks from API response
+
+      // Retrieve project and role data
+      const projectResponse = await axios.get(
+        `http://localhost:8000/api/get-project/${projectId}`
+      );
+      setProject(projectResponse.data);
+
+      const roleResponse = await axios.get(
+        `http://localhost:8000/api/get-role/${roleId}`
+      );
+      setRole(roleResponse.data);
+    };
+    fetchTasksByRole();
+  }, [projectId, roleId]); // Re-fetch if projectId or roleId changes
 
   return (
     <div className="w-100">
@@ -57,13 +38,22 @@ export default function OneTask() {
       </div>
       <div className="d-flex justify-content-between mb-4">
         <div>
-          <h1 className="px-5 pt-5 pb-4" style={{ color: "#7b5844" }}>
-            Dévelopment :
-          </h1>
+          {/* Display project name if available */}
+          {project && (
+            <h1 className="px-5 pb-4" style={{ color: "#7b5844" }}>
+              {project.projectname}{" "}
+            </h1>
+          )}
         </div>
-        <div className=" mx-5 px-5 pt-5 fs-5">
+        <div className="pt-5">
+          <h2 className="px-5 pt-5 pb-4" style={{ color: "#7b5844" }}>
+            {/* Display role name if available */}
+            {role ? role.rolename : ""}
+          </h2>
+        </div>
+        <div className="mx-5 px-5 pt-5 fs-5">
           <NavLink
-            to="/allprojects/:id"
+            to={`/oneproject/${projectId}`}
             className="fs-5 fst-italic text-decoration-none"
             style={{ color: "#7b5844" }}
             onMouseEnter={(e) => {
@@ -79,16 +69,21 @@ export default function OneTask() {
       </div>
 
       <div>
-        <div class="container">
-          <div class="row">
-            {data.map((task) => (
-              <div class="col-md-4 col-sm-6 col-xs-12 mt-4 mb-5">
-                <div className="card word-wrap p-2 text-secondary custom-box-shadow">
-                  <div className="rounded-3">
-                    <div key={task.taskid}>
-                      <h2 className="p-2 text-secondary fs-3 text-center border border-1 rounded-2 custom-box-shadow">
-                        {task.taskpic}
+        <div className="container">
+          <div className="row">
+            {tasks.length > 0 ? ( // Check if there are tasks
+              tasks.map((task) => (
+                <div
+                  className="card-group col-md-4 col-sm-6 col-xs-12 mt-4 mb-5"
+                  key={task.taskid} // Unique key for each task
+                >
+                  <div className="card word-wrap p-2 text-secondary custom-box-shadow">
+                    <div className="card-group rounded-3">
+                      <h2 className="w-100 p-2 text-secondary fs-3 text-center border border-1 rounded-2 custom-box-shadow">
+                        {task.userpic}
                       </h2>
+                    </div>
+                    <div>
                       <div
                         className="text-center pt-3 pb-4 border-bottom"
                         style={{ color: "#3b798c" }}
@@ -105,41 +100,25 @@ export default function OneTask() {
                           <p>{task.taskend}</p>
                         </div>
                       </div>
-                      <p className="text-justify my-3">{task.taskcomment}</p>
-                      <p>
-                        <div className="container mt-5 mb-4">
-                          <div className="form-group d-flex justify-content-around">
-                            <div className="form-check">
-                              <input
-                                className="form-check-input border border-1 border-secondary"
-                                type="radio"
-                                name="exampleRadios"
-                                id="option1"
-                                value="option1"
-                              />
-                              <label className="form-check-label" for="option1">
-                                In progress
-                              </label>
-                            </div>
-                            <div className="form-check">
-                              <input
-                                className="form-check-input border border-1 border-secondary"
-                                type="radio"
-                                name="exampleRadios"
-                                id="option2"
-                                value="option2"
-                              />
-                              <label className="form-check-label" for="option2">
-                                Completed
-                              </label>
-                            </div>
-                          </div>
+
+                      <div className="pt-2">
+                        <div
+                          className="border p-2"
+                          style={{
+                            backgroundColor: "#f8f9fa",
+                            borderRadius: "5px",
+                          }}
+                        >
+                          {task.taskcomment}
                         </div>
-                      </p>
-                      <div className="d-flex py-2 mt-4">
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="card-footer d-flex py-2 mt-4 p-3">
                         <div className="w-50 m-1">
                           <button
-                            type="submit"
+                            type="button"
                             className="btn btn-primary border-0 px-3 py-2 w-100"
                             style={{ backgroundColor: "#3b798c" }}
                           >
@@ -148,7 +127,7 @@ export default function OneTask() {
                         </div>
                         <div className="w-50 m-1">
                           <button
-                            type="submit"
+                            type="button"
                             className="btn btn-primary border-0 px-3 py-2 w-100"
                             style={{ backgroundColor: "#3b798c" }}
                           >
@@ -159,8 +138,10 @@ export default function OneTask() {
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-center">No tasks available for this role</p>
+            )}
           </div>
         </div>
       </div>
