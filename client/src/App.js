@@ -19,7 +19,7 @@ function App() {
         <Route path="/oneproject/:projectId" element={<OneProject />} />
         <Route path="/add-project" element={<AddProject />} />
         <Route path="/add-task" element={<AddTask />} />
-        <Route path="/:projectId/:taskid" element={<TasksByRole />} />
+        <Route path="/:projectId/:roleId" element={<TasksByRole />} />
       </Routes>
     </>
   );

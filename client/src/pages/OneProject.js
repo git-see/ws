@@ -50,12 +50,12 @@ export default function OneProject() {
                 e.target.style.fontWeight = "normal";
               }}
             >
-              &#10132; Back to all projects
+              &#10132; Back to All projects
             </NavLink>
           </div>
         </div>
 
-        <div className="container mt-5 tabletask">
+        <div className="container mt-5">
           <div className="row">
             <div className="col-12">
               <table className="table table-striped mt-4 mb-5">
@@ -71,7 +71,7 @@ export default function OneProject() {
                 </thead>
                 <tbody>
                   {tasks.map((task) => {
-                    const roleKey = task.taskrole; // Get the role name
+                    const roleKey = task.role_roleid; // Get the role name
 
                     // If the role has already been displayed
                     if (uniqueRoles[roleKey]) {
@@ -80,15 +80,7 @@ export default function OneProject() {
                         <tr key={task.taskid}>
                           <td>{""}</td>
                           <td>{task.taskobjective}</td>
-                          <td
-                            className="text-primary"
-                            onClick={() =>
-                              navigate(`/${projectId}/${task.taskid}`)
-                            }
-                            style={{ cursor: "pointer" }}
-                          >
-                            {task.userpic}
-                          </td>
+                          <td>{task.userpic}</td>
                           <td>{task.taskstart}</td>
                           <td>{task.taskend}</td>
                           <td
@@ -114,6 +106,7 @@ export default function OneProject() {
 
                       // Show color based on task status
                       let statusColor = "";
+                      console.log(task.rolename);
                       if (task.taskstatus === "Completed") {
                         statusColor = "#3b798c";
                       } else if (task.taskstatus === "In Progress") {
@@ -122,17 +115,17 @@ export default function OneProject() {
 
                       return (
                         <tr key={task.taskid}>
-                          <td className="fs-5 fw-bold">{task.taskrole}</td>
-                          <td>{task.taskobjective}</td>
                           <td
-                            className="text-primary"
+                            className="fs-5 fw-bold"
                             onClick={() =>
-                              navigate(`/${projectId}/${task.taskid}`)
+                              navigate(`/${projectId}/${task.role_roleid}`)
                             }
-                            style={{ cursor: "pointer" }}
+                            style={{ cursor: "pointer", color: "#3b798c" }}
                           >
-                            {task.userpic}
+                            {task.rolename}
                           </td>
+                          <td>{task.taskobjective}</td>
+                          <td>{task.userpic}</td>
                           <td>{task.taskstart}</td>
                           <td>{task.taskend}</td>
 
