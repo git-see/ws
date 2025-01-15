@@ -8,12 +8,13 @@ export default function TasksByRole() {
   const [tasks, setTasks] = useState([]);
   const [project, setProject] = useState();
   const [role, setRole] = useState();
-  const [editingTaskId, setEditingTaskId] = useState(null); // Currently editing task ID
+  const [editingTaskId, setEditingTaskId] = useState(null);
   const [editedTask, setEditedTask] = useState({
     taskstart: "",
     taskend: "",
     taskcomment: "",
   });
+  const [confirmDeleteTaskId, setConfirmDeleteTaskId] = useState(null);
 
   useEffect(() => {
     const fetchTasksByRole = async () => {
@@ -33,8 +34,9 @@ export default function TasksByRole() {
       setRole(roleResponse.data);
     };
     fetchTasksByRole();
-  }, [projectId, roleId]); // Dependency array to re-run effect on changes
+  }, [projectId, roleId]);
 
+  // Update
   const startEditing = (task) => {
     setEditingTaskId(task.taskid);
     setEditedTask({
@@ -42,6 +44,7 @@ export default function TasksByRole() {
       taskend: task.taskend,
       taskcomment: task.taskcomment,
     });
+    setConfirmDeleteTaskId(null); // Reset delete confirmation
   };
 
   const handleEditChange = (e) => {
@@ -54,17 +57,36 @@ export default function TasksByRole() {
   };
 
   const saveChanges = async (taskId) => {
-    // Save the edited task to the server
     await axios.put(
       `http://localhost:8000/api/update-task/${taskId}`,
       editedTask
     );
-    setEditingTaskId(null); // Reset editing state
-    // Re-fetch tasks
+    setEditingTaskId(null);
     const response = await axios.get(
       `http://localhost:8000/api/get-tasks-by-role/${projectId}/${roleId}`
     );
     setTasks(response.data);
+  };
+
+  // Delete with condition (irreversible)
+  const handleDeleteClick = (taskId) => {
+    setConfirmDeleteTaskId(taskId);
+    setEditingTaskId(null); // Reset editing task
+  };
+
+  const confirmDelete = async () => {
+    await axios.delete(
+      `http://localhost:8000/api/delete-task/${confirmDeleteTaskId}`
+    );
+    const response = await axios.get(
+      `http://localhost:8000/api/get-tasks-by-role/${projectId}/${roleId}`
+    );
+    setTasks(response.data);
+    setConfirmDeleteTaskId(null);
+  };
+
+  const cancelDelete = () => {
+    setConfirmDeleteTaskId(null);
   };
 
   return (
@@ -174,7 +196,7 @@ export default function TasksByRole() {
                     </div>
                     <div>
                       <div className="card-footer d-flex justify-content-around py-2 mt-4 p-3">
-                        <div className="w-50 d-flex justify-content-around">
+                        <div className="w-100 d-flex justify-content-around">
                           {editingTaskId === task.taskid ? (
                             <>
                               <button
@@ -195,32 +217,57 @@ export default function TasksByRole() {
                               </button>
                             </>
                           ) : (
-                            <button
-                              type="button"
-                              className="btn btn-primary border-0 px-3 py-2 w-100"
-                              style={{ backgroundColor: "#3b798c" }}
-                              onClick={() => startEditing(task)}
-                            >
-                              Edit
-                            </button>
+                            <>
+                              <button
+                                type="button"
+                                className="btn text-white mx-1 border-0 px-3 py-2 w-100"
+                                style={{ backgroundColor: "#3b798c" }}
+                                onClick={() => startEditing(task)}
+                              >
+                                Edit
+                              </button>
+                              {confirmDeleteTaskId !== task.taskid && ( // Show Delete button only if not confirming delete
+                                <button
+                                  type="button"
+                                  className="btn text-white mx-1 border-0 px-3 py-2 w-100"
+                                  style={{ backgroundColor: "#3b798c" }}
+                                  onClick={() => handleDeleteClick(task.taskid)}
+                                >
+                                  Delete
+                                </button>
+                              )}
+                            </>
                           )}
                         </div>
-                        <div className="w-50 mx-3">
-                          <button
-                            type="button"
-                            className="btn btn-danger border-0 px-3 py-2 w-100"
-                            style={{ backgroundColor: "#3b798c" }}
-                          >
-                            Delete
-                          </button>
-                        </div>
                       </div>
+                      {confirmDeleteTaskId === task.taskid && (
+                        <div className="text-danger text-center">
+                          Are you sure?
+                          <br />
+                          Be careful, this action is irreversible!
+                          <div className="d-flex justify-content-around my-3">
+                            <button
+                              className="btn text-white px-5"
+                              style={{ backgroundColor: "#aa5c55" }}
+                              onClick={confirmDelete}
+                            >
+                              Yes
+                            </button>
+                            <button
+                              className="btn text-white px-5"
+                              style={{ backgroundColor: "#3b798c" }}
+                              onClick={cancelDelete}
+                            >
+                              No
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              // If no tasks
               <p className="text-center">No tasks available for this role</p>
             )}
           </div>

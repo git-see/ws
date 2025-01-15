@@ -241,5 +241,19 @@ app.put("/api/update-task/:id", (req, res) => {
   });
 });
 
+// Delete a task with condition (irreversible)
+app.delete("/api/delete-task/:id", (req, res) => {
+  const taskId = req.params.id;
+  const request = "DELETE FROM task WHERE taskid = ?";
+
+  db.query(request, [taskId], (error, result) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).send("Error: The task could not be deleted");
+    }
+    res.status(200).send("Task successfully deleted !");
+  });
+});
+
 // Start on port 8000
 app.listen(8000);
