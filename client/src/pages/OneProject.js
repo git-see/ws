@@ -37,7 +37,6 @@ export default function OneProject() {
               {projectName}
             </h1>
           </div>
-
           <div className=" mx-5 px-5 pt-5">
             <NavLink
               to="/allprojects"
@@ -54,7 +53,6 @@ export default function OneProject() {
             </NavLink>
           </div>
         </div>
-
         <div className="container mt-5">
           <div className="row">
             <div className="col-12">
@@ -79,10 +77,12 @@ export default function OneProject() {
                       return (
                         <tr key={task.taskid}>
                           <td>{""}</td>
-                          <td>{task.taskobjective}</td>
-                          <td>{task.userpic}</td>
-                          <td>{task.taskstart}</td>
-                          <td>{task.taskend}</td>
+                          <td className="text-secondary">
+                            {task.taskobjective}
+                          </td>
+                          <td className="text-secondary">{task.userpic}</td>
+                          <td className="text-secondary">{task.taskstart}</td>
+                          <td className="text-secondary">{task.taskend}</td>
                           <td
                             className="opstatus fst-italic"
                             style={{
@@ -124,10 +124,12 @@ export default function OneProject() {
                           >
                             {task.rolename}
                           </td>
-                          <td>{task.taskobjective}</td>
-                          <td>{task.userpic}</td>
-                          <td>{task.taskstart}</td>
-                          <td>{task.taskend}</td>
+                          <td className="text-secondary">
+                            {task.taskobjective}
+                          </td>
+                          <td className="text-secondary">{task.userpic}</td>
+                          <td className="text-secondary">{task.taskstart}</td>
+                          <td className="text-secondary">{task.taskend}</td>
 
                           <td
                             className="opstatus fst-italic"
@@ -152,7 +154,7 @@ export default function OneProject() {
                   type="submit"
                   className="btn border-0 mb-5 text-white px-4 py-2 w-25"
                   style={{ backgroundColor: "#3b798c" }}
-                  onClick={() => navigate(`/add-task`)}
+                  onClick={() => navigate(`/add-task/${projectId}`)}
                 >
                   Add New Task
                 </button>
