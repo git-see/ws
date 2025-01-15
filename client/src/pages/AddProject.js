@@ -70,10 +70,10 @@ export default function AddProject() {
                 </label>
                 <input
                   className="form-control form-control-lg"
-                  type="text"
+                  type="date"
                   name="projectstart"
                   id="projectstart"
-                  // Accept years from 2020 to 2099
+                  // From 2020 to 2099
                   //pattern="^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(20[0-9]{2})\s([01][0-9]|2[0-3]):([0-5][0-9])$"
                   onChange={(e) => setProjectstart(e.target.value)}
                   value={projectstart}
@@ -90,10 +90,10 @@ export default function AddProject() {
                 </label>
                 <input
                   className="form-control form-control-lg"
-                  type="text"
+                  type="date"
                   name="projectend"
                   id="projectend"
-                  // Accepter les années de 2020 à 2099
+                  // From 2020 to 2099
                   //pattern="^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(20[0-9]{2})\s([01][0-9]|2[0-3]):([0-5][0-9])$"
                   onChange={(e) => setProjectend(e.target.value)}
                   value={projectend}

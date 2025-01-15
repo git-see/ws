@@ -15,12 +15,11 @@ const db = mysql.createPool({
   database: "ws",
 });
 
-// API start with nodemon
+// --------------------- Projects Routes ---------------------
 // READ all projects
 app.get("/api/get", (req, res) => {
   const request = "SELECT * FROM project ORDER BY created_at DESC";
   db.query(request, (error, result) => {
-    // Handle errors in the "Security" step
     res.send(result);
   });
 });
@@ -45,27 +44,6 @@ app.post("/api/post", (req, res) => {
   );
 });
 
-// Update a project
-app.put("/api/update/:id", (req, res) => {
-  const projectId = req.params.id;
-  const { projectname, projectstart, projectend, projectcomment } = req.body; // Destructure request body
-
-  const request =
-    "UPDATE project SET projectname = ?, projectstart = ?, projectend = ?, projectcomment = ? WHERE projectid = ?";
-
-  db.query(
-    request,
-    [projectname, projectstart, projectend, projectcomment, projectId],
-    (error, _) => {
-      if (error) {
-        console.log(error);
-        return res.status(500).send("Error: The project could not be updated");
-      }
-      res.status(200).send("Project successfully updated !");
-    }
-  );
-});
-
 // Show selected project
 app.get("/api/get-tasks/:projectId", (req, res) => {
   const projectId = req.params.projectId;
@@ -78,7 +56,7 @@ app.get("/api/get-tasks/:projectId", (req, res) => {
     FROM task
     JOIN role ON task.role_roleid = role.roleid
     JOIN project ON task.project_projectid = project.projectid
-    LEFT JOIN user ON task.role_roleid = user.user_roleid
+    LEFT JOIN user ON task.user_userid = user.userid
     WHERE task.project_projectid = ?
   `;
   db.query(request, [projectId], (error, result) => {
@@ -107,6 +85,39 @@ app.get("/api/get-project/:projectId", (req, res) => {
   });
 });
 
+// Update a project
+app.put("/api/update/:id", (req, res) => {
+  const projectId = req.params.id;
+  const { projectname, projectstart, projectend, projectcomment } = req.body;
+  const request =
+    "UPDATE project SET projectname = ?, projectstart = ?, projectend = ?, projectcomment = ? WHERE projectid = ?";
+
+  db.query(
+    request,
+    [projectname, projectstart, projectend, projectcomment, projectId],
+    (error, _) => {
+      if (error) {
+        console.log(error);
+        return res.status(500).send("Error: The project could not be updated");
+      }
+      res.status(200).send("Project successfully updated !");
+    }
+  );
+});
+
+// --------------------- Roles Routes ---------------------
+// Get all roles
+app.get("/api/get-roles", (req, res) => {
+  const request = "SELECT * FROM role";
+  db.query(request, (error, result) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).send("Error: Roles cannot be retrieved");
+    }
+    res.send(result);
+  });
+});
+
 // Get role by ID
 app.get("/api/get-role/:roleId", (req, res) => {
   const roleId = req.params.roleId;
@@ -124,11 +135,38 @@ app.get("/api/get-role/:roleId", (req, res) => {
   });
 });
 
+// --------------------- Users/Roles Routes ---------------------
+// Get all users
+app.get("/api/get-users", (req, res) => {
+  const request = "SELECT * FROM user";
+  db.query(request, (error, result) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).send("Error: Users cannot be retrieved");
+    }
+    res.send(result);
+  });
+});
+
+// Get users by role ID
+app.get("/api/get-users-by-role/:roleId", (req, res) => {
+  const roleId = req.params.roleId;
+  const request = "SELECT * FROM user WHERE user_roleid = ?";
+
+  db.query(request, [roleId], (error, result) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).send("Error: Users cannot be retrieved");
+    }
+    res.send(result);
+  });
+});
+
+// --------------------- Tasks Routes ---------------------
 // Get tasks by role and user
 app.get("/api/get-tasks-by-role/:projectId/:roleId", (req, res) => {
   const projectId = req.params.projectId;
   const roleId = req.params.roleId; // Get role ID from URL
-
   const request = `
       SELECT task.*, role.rolename, project.projectname, user.userpic 
       FROM task 
@@ -145,6 +183,46 @@ app.get("/api/get-tasks-by-role/:projectId/:roleId", (req, res) => {
     }
     res.send(result);
   });
+});
+
+// Add a task
+app.post("/api/add-task", (req, res) => {
+  const {
+    project_projectid,
+    role_roleid,
+    user_userid,
+    taskobjective,
+    taskstart,
+    taskend,
+    taskcomment,
+    taskstatus,
+  } = req.body;
+
+  const request =
+    "INSERT INTO task (project_projectid, role_roleid, user_userid, taskobjective, taskstart, taskend, taskcomment, taskstatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+  db.query(
+    request,
+    [
+      project_projectid,
+      role_roleid,
+      user_userid,
+      taskobjective,
+      taskstart,
+      taskend,
+      taskcomment,
+      taskstatus,
+    ],
+    (error, result) => {
+      if (error) {
+        console.error("Erreur lors de l'ajout de la tâche :", error);
+        return res
+          .status(500)
+          .send("Error: The task could not be created. " + error.message);
+      }
+      res.status(200).send("Task added successfully !");
+    }
+  );
 });
 
 // Start on port 8000
