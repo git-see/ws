@@ -225,5 +225,21 @@ app.post("/api/add-task", (req, res) => {
   );
 });
 
+// Update a task
+app.put("/api/update-task/:id", (req, res) => {
+  const taskId = req.params.id;
+  const { taskstart, taskend, taskcomment } = req.body;
+  const request =
+    "UPDATE task SET taskstart = ?, taskend = ?, taskcomment = ? WHERE taskid = ?";
+
+  db.query(request, [taskstart, taskend, taskcomment, taskId], (error, _) => {
+    if (error) {
+      console.log(error);
+      return res.status(500).send("Error: The task could not be updated");
+    }
+    res.status(200).send("Task successfully updated !");
+  });
+});
+
 // Start on port 8000
 app.listen(8000);
