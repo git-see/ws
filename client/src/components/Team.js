@@ -1,10 +1,5 @@
 const Team = () => {
-  const data = [
-    { role: "Manager", namet: "John" },
-    { role: "Designer", namet: "Siam" },
-    { role: "Web Developer", namet: "Melody" },
-    { role: "Community Manager", namet: "Tom" },
-  ];
+  const data = [];
 
   return (
     <div className="container my-5">

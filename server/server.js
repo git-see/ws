@@ -136,9 +136,13 @@ app.get("/api/get-role/:roleId", (req, res) => {
 });
 
 // --------------------- Users/Roles Routes ---------------------
-// Get all users
+// Get all users with roles
 app.get("/api/get-users", (req, res) => {
-  const request = "SELECT * FROM user";
+  const request = `
+    SELECT user.userid, user.userpic, role.rolename 
+    FROM user 
+    JOIN role ON user.user_roleid = role.roleid
+  `;
   db.query(request, (error, result) => {
     if (error) {
       console.error(error);
