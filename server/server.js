@@ -216,6 +216,20 @@ app.post("/api/add-user", (req, res) => {
   });
 });
 
+// Delete a user
+app.delete("/api/delete-user/:id", (req, res) => {
+  const userId = req.params.id;
+  const request = "DELETE FROM user WHERE userid = ?";
+
+  db.query(request, [userId], (error, result) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).send("Error: The user could not be deleted");
+    }
+    res.status(200).send("User successfully deleted !");
+  });
+});
+
 // --------------------- Tasks Routes ---------------------
 // Get tasks by role and user
 app.get("/api/get-tasks-by-role/:projectId/:roleId", (req, res) => {

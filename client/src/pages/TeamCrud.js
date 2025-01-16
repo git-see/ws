@@ -12,7 +12,7 @@ export default function TeamCrud() {
         const response = await fetch("http://localhost:8000/api/get-users");
         const result = await response.json();
 
-        // READ
+        // -------------------------- READ---------------------------------
         // Group users by role
         const usersByRole = result.reduce((acc, user) => {
           const roleName = user.rolename;
@@ -26,17 +26,14 @@ export default function TeamCrud() {
         // Convert the object to an array for display
         setData(Object.entries(usersByRole));
       } catch (error) {
-        console.error(
-          "Erreur lors de la récupération des utilisateurs :",
-          error
-        );
+        console.error("Error retrieving users :", error);
       }
     };
 
     fetchUsers();
   }, []);
 
-  // CREATE
+  // -------------------------- CREATE---------------------------------
   const handleAddColleague = () => {
     setShowForm(true);
   };
@@ -80,13 +77,50 @@ export default function TeamCrud() {
       };
       fetchUsers();
     } catch (error) {
-      console.error("Erreur lors de l'ajout de l'utilisateur :", error);
+      console.error("Error adding user :", error);
     }
   };
 
   const handleCancel = () => {
     setShowForm(false); // Hide the form
     setNewUser({ rolename: "", userpic: "" }); // Reset the form
+  };
+
+  // -------------------------- DELETE---------------------------------
+  const handleDeleteUser = async (userId, roleName) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/delete-user/${userId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error deleting user");
+      }
+
+      // After successful deletion,, re-fetch users after deletion
+      const fetchUsers = async () => {
+        const response = await fetch("http://localhost:8000/api/get-users");
+        const result = await response.json();
+        // Group users by role again after deletion.
+        const usersByRole = result.reduce((acc, user) => {
+          const roleName = user.rolename;
+          if (!acc[roleName]) {
+            acc[roleName] = [];
+          }
+          acc[roleName].push(user);
+          return acc;
+        }, {});
+        // Update the state with the new users data
+        setData(Object.entries(usersByRole));
+      };
+
+      await fetchUsers();
+    } catch (error) {
+      console.error("Error deleting user :", error);
+    }
   };
 
   return (
@@ -163,6 +197,7 @@ export default function TeamCrud() {
                   </th>
                 </tr>
               </thead>
+
               <tbody>
                 {data.map(([roleName, users]) => (
                   <React.Fragment key={roleName}>
@@ -173,7 +208,7 @@ export default function TeamCrud() {
                       >
                         {roleName}
                       </td>
-                      {/*Display the 1st colleague in the same line*/}
+                      {/* Display the 1st colleague in the same line */}
                       <td className="text-secondary">{users[0].userpic}</td>
                       <td className="btn-group text-center w-100">
                         <input
@@ -187,32 +222,32 @@ export default function TeamCrud() {
                           className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
                           value="Delete"
                           style={{ backgroundColor: "#3b798c" }}
+                          onClick={() =>
+                            handleDeleteUser(users[0].userid, roleName)
+                          }
                         />
                       </td>
                     </tr>
-                    {users.slice(1).map(
-                      (
-                        user // Show other colleagues of the same role
-                      ) => (
-                        <tr key={user.userid}>
-                          <td className="text-secondary">{user.userpic}</td>
-                          <td className="btn-group text-center w-100">
-                            <input
-                              type="submit"
-                              className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
-                              value="Edit"
-                              style={{ backgroundColor: "#3b798c" }}
-                            />
-                            <input
-                              type="submit"
-                              className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
-                              value="Delete"
-                              style={{ backgroundColor: "#3b798c" }}
-                            />
-                          </td>
-                        </tr>
-                      )
-                    )}
+                    {users.slice(1).map((user) => (
+                      <tr key={user.userid}>
+                        <td className="text-secondary">{user.userpic}</td>
+                        <td className="btn-group text-center w-100">
+                          <input
+                            className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
+                            value="Edit"
+                            style={{ backgroundColor: "#3b798c" }}
+                          />
+                          <input
+                            className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
+                            value="Delete"
+                            style={{ backgroundColor: "#3b798c" }}
+                            onClick={() =>
+                              handleDeleteUser(user.userid, roleName)
+                            }
+                          />
+                        </td>
+                      </tr>
+                    ))}
                   </React.Fragment>
                 ))}
               </tbody>
