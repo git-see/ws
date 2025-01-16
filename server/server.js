@@ -220,6 +220,22 @@ app.post("/api/add-user", (req, res) => {
   });
 });
 
+// Update a user
+app.put("/api/update-user/:id", (req, res) => {
+  const userId = req.params.id;
+  const { rolename, userpic } = req.body;
+  const request =
+    "UPDATE user SET userpic = ?, user_roleid = (SELECT roleid FROM role WHERE rolename = ?) WHERE userid = ?";
+
+  db.query(request, [userpic, rolename, userId], (error, _) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).send("Error: The user could not be updated");
+    }
+    res.status(200).send("User successfully updated !");
+  });
+});
+
 // Delete a user
 app.delete("/api/delete-user/:id", (req, res) => {
   const userId = req.params.id;
