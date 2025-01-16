@@ -7,19 +7,27 @@ import AddProject from "./pages/AddProject";
 import OneProject from "./pages/OneProject";
 import AddTask from "./pages/AddTask";
 import TasksByRole from "./pages/TasksByRole";
+import Auth from "./components/Auth";
+import { Navigate } from 'react-router-dom';
 import "./css/app.css";
+
+const PrivateRoute = ({ children }) => {
+  const user = localStorage.getItem('user'); // Vérifiez si l'utilisateur est connecté
+  return user ? children : <Navigate to="/auth" />;
+};
 
 function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/teamcrud" element={<TeamCrud />} />
-        <Route path="/allprojects" element={<AllProjects />} />
-        <Route path="/oneproject/:projectId" element={<OneProject />} />
-        <Route path="/add-project" element={<AddProject />} />
-        <Route path="/add-task/:projectId" element={<AddTask />} />
-        <Route path="/:projectId/:roleId" element={<TasksByRole />} />
+        <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/teamcrud" element={<PrivateRoute><TeamCrud /></PrivateRoute>} />
+        <Route path="/allprojects" element={<PrivateRoute><AllProjects /></PrivateRoute>} />
+        <Route path="/oneproject/:projectId" element={<PrivateRoute><OneProject /></PrivateRoute>} />
+        <Route path="/add-project" element={<PrivateRoute><AddProject /></PrivateRoute>} />
+        <Route path="/add-task/:projectId" element={<PrivateRoute><AddTask /></PrivateRoute>} />
+        <Route path="/:projectId/:roleId" element={<PrivateRoute><TasksByRole /></PrivateRoute>} />
       </Routes>
     </>
   );

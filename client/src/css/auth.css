@@ -1,0 +1,22 @@
+.auth {
+  background-image: url("../images/bgws.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+}
+.authForm {
+  background-color: rgb(211, 204, 204);
+  opacity: 0.9;
+  width: 400px;
+  margin: auto;
+  margin-top: 40px;
+  line-height: 40px;
+  padding: 40px;
+  border-radius: 5px;
+}
+
+.authForm h2,
+.authForm label {
+  color: #7b5844;
+}
