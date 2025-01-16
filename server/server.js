@@ -166,6 +166,60 @@ app.get("/api/get-users-by-role/:roleId", (req, res) => {
   });
 });
 
+// Add a user with role creation if necessary
+app.post("/api/add-user", (req, res) => {
+  const { rolename, userpic } = req.body;
+
+  // Check if the role exists
+  const roleCheckQuery = "SELECT roleid FROM role WHERE rolename = ?";
+
+  db.query(roleCheckQuery, [rolename], (error, result) => {
+    if (error) {
+      console.error("Error checking role:", error);
+      return res.status(500).send("Error checking role");
+    }
+
+    let roleId;
+
+    if (result.length > 0) {
+      roleId = result[0].roleid; // Role exists
+    } else {
+      // Role does not exist, create it
+      const insertRoleQuery = "INSERT INTO role (rolename) VALUES (?)";
+      db.query(insertRoleQuery, [rolename], (insertError, insertResult) => {
+        if (insertError) {
+          console.error("Error adding role:", insertError);
+          return res.status(500).send("Error creating role");
+        }
+        roleId = insertResult.insertId; // Get the new role ID
+
+        // Now insert the user
+        const insertUserQuery =
+          "INSERT INTO user (userpic, user_roleid) VALUES (?, ?)";
+        db.query(insertUserQuery, [userpic, roleId], (userError) => {
+          if (userError) {
+            console.error("Error adding user:", userError);
+            return res.status(500).send("Error: The user could not be created");
+          }
+          res.status(200).send("User added successfully !");
+        });
+      });
+      return; // Important: return to prevent executing the next lines of code
+    }
+
+    // Insert the user if the role already exists
+    const insertUserQuery =
+      "INSERT INTO user (userpic, user_roleid) VALUES (?, ?)";
+    db.query(insertUserQuery, [userpic, roleId], (userError) => {
+      if (userError) {
+        console.error("Error adding user:", userError);
+        return res.status(500).send("Error: The user could not be created");
+      }
+      res.status(200).send("User added successfully !");
+    });
+  });
+});
+
 // --------------------- Tasks Routes ---------------------
 // Get tasks by role and user
 app.get("/api/get-tasks-by-role/:projectId/:roleId", (req, res) => {
