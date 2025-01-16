@@ -15,6 +15,27 @@ const db = mysql.createPool({
   database: "ws",
 });
 
+// --------------------- Auth Routes ---------------------
+// Login
+app.post("/api/login", (req, res) => {
+  const { userpic, password } = req.body;
+
+  const query = "SELECT * FROM user WHERE userpic = ? AND password = ?";
+  db.query(query, [userpic, password], (error, result) => {
+    if (error) {
+      return res.status(500).send("Error during authentication");
+    }
+    if (result.length > 0) {
+      // Authentication successful, return user data or token
+      res.status(200).send(result[0]);
+    } else {
+      res.status(401).send("Authentication failed!");
+    }
+  });
+});
+
+// Regsiter
+
 // --------------------- Projects Routes ---------------------
 // READ all projects
 app.get("/api/get", (req, res) => {
