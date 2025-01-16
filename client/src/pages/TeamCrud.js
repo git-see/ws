@@ -4,7 +4,9 @@ import Menu from "../components/Menu";
 export default function TeamCrud() {
   const [data, setData] = useState([]);
   const [newUser, setNewUser] = useState({ rolename: "", userpic: "" });
-  const [showForm, setShowForm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editUser, setEditUser] = useState(null); // To hold user being edited
+  const [showForm, setShowForm] = useState(false); // Toggle form visibility
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -17,13 +19,12 @@ export default function TeamCrud() {
         const usersByRole = result.reduce((acc, user) => {
           const roleName = user.rolename;
           if (!acc[roleName]) {
-            acc[roleName] = []; // Initialize array if role doesn't exist
+            acc[roleName] = [];
           }
-          acc[roleName].push(user); // Add user to corresponding role
+          acc[roleName].push(user);
           return acc;
         }, {});
 
-        // Convert the object to an array for display
         setData(Object.entries(usersByRole));
       } catch (error) {
         console.error("Error retrieving users :", error);
@@ -33,57 +34,82 @@ export default function TeamCrud() {
     fetchUsers();
   }, []);
 
-  // -------------------------- CREATE---------------------------------
+  // -------------------------- CREATE / UDPDATE ---------------------------------
   const handleAddColleague = () => {
     setShowForm(true);
   };
 
+  // Handle input changes for both adding and editing users
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setNewUser({ ...newUser, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!newUser.rolename || !newUser.userpic) return; // Exit if required fields are empty
-
-    try {
-      const response = await fetch("http://localhost:8000/api/add-user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newUser),
-      });
-      const result = await response.text();
-      console.log(result);
-
-      // Re-fetch users after adding a new colleague
-      setShowForm(false); // Hide the form after submission
-      setNewUser({ rolename: "", userpic: "" });
-      // Re-fetch users to update the list
-      const fetchUsers = async () => {
-        const response = await fetch("http://localhost:8000/api/get-users");
-        const result = await response.json();
-        const usersByRole = result.reduce((acc, user) => {
-          const roleName = user.rolename;
-          if (!acc[roleName]) {
-            acc[roleName] = [];
-          }
-          acc[roleName].push(user); // Group users by role again
-          return acc;
-        }, {});
-        setData(Object.entries(usersByRole));
-      };
-      fetchUsers();
-    } catch (error) {
-      console.error("Error adding user :", error);
+    if (isEditing) {
+      setEditUser({ ...editUser, [name]: value });
+    } else {
+      setNewUser({ ...newUser, [name]: value });
     }
   };
 
+  // Handle form submission for adding or updating users
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isEditing) {
+      // Handle user update
+      try {
+        const response = await fetch(
+          `http://localhost:8000/api/update-user/${editUser.userid}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(editUser),
+          }
+        );
+
+        if (!response.ok) throw new Error("Error updating user");
+
+        setIsEditing(false);
+        setEditUser(null);
+        await fetchUsers();
+      } catch (error) {
+        console.error("Error updating user :", error);
+      }
+    } else {
+      // Handle user addition
+      if (!newUser.rolename || !newUser.userpic) return; // Validate input
+
+      try {
+        const response = await fetch("http://localhost:8000/api/add-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newUser),
+        });
+
+        if (!response.ok) throw new Error("Error adding user");
+
+        setShowForm(false); // Hide form after submission
+        setNewUser({ rolename: "", userpic: "" });
+        await fetchUsers(); // Fetch updated user list
+      } catch (error) {
+        console.error("Error adding user :", error);
+      }
+    }
+  };
+
+  // Cancel adding or editing
   const handleCancel = () => {
-    setShowForm(false); // Hide the form
-    setNewUser({ rolename: "", userpic: "" }); // Reset the form
+    setShowForm(false); // Hide form after cancel
+    setNewUser({ rolename: "", userpic: "" });
+    setIsEditing(false);
+    setEditUser(null);
+  };
+
+  // Initialize editing state for a user
+  const handleEditUser = (user) => {
+    setIsEditing(true);
+    setEditUser(user);
   };
 
   // -------------------------- DELETE---------------------------------
@@ -100,27 +126,24 @@ export default function TeamCrud() {
         throw new Error("Error deleting user");
       }
 
-      // After successful deletion,, re-fetch users after deletion
-      const fetchUsers = async () => {
-        const response = await fetch("http://localhost:8000/api/get-users");
-        const result = await response.json();
-        // Group users by role again after deletion.
-        const usersByRole = result.reduce((acc, user) => {
-          const roleName = user.rolename;
-          if (!acc[roleName]) {
-            acc[roleName] = [];
-          }
-          acc[roleName].push(user);
-          return acc;
-        }, {});
-        // Update the state with the new users data
-        setData(Object.entries(usersByRole));
-      };
-
       await fetchUsers();
     } catch (error) {
       console.error("Error deleting user :", error);
     }
+  };
+
+  const fetchUsers = async () => {
+    const response = await fetch("http://localhost:8000/api/get-users");
+    const result = await response.json();
+    const usersByRole = result.reduce((acc, user) => {
+      const roleName = user.rolename;
+      if (!acc[roleName]) {
+        acc[roleName] = [];
+      }
+      acc[roleName].push(user);
+      return acc;
+    }, {});
+    setData(Object.entries(usersByRole));
   };
 
   return (
@@ -156,7 +179,7 @@ export default function TeamCrud() {
                 <input
                   type="text"
                   name="rolename"
-                  value={newUser.rolename}
+                  value={isEditing ? editUser.rolename : newUser.rolename}
                   onChange={handleChange}
                   required
                   placeholder="Role"
@@ -165,7 +188,7 @@ export default function TeamCrud() {
                 <input
                   type="text"
                   name="userpic"
-                  value={newUser.userpic}
+                  value={isEditing ? editUser.userpic : newUser.userpic}
                   onChange={handleChange}
                   required
                   placeholder="Colleague"
@@ -176,7 +199,7 @@ export default function TeamCrud() {
                   className="btn border-0 mx-2 w-25 text-white"
                   style={{ backgroundColor: "#3b798c" }}
                 >
-                  Add User
+                  {isEditing ? "Update User" : "Add User"}
                 </button>
                 <button
                   onClick={handleCancel}
@@ -201,51 +224,68 @@ export default function TeamCrud() {
               <tbody>
                 {data.map(([roleName, users]) => (
                   <React.Fragment key={roleName}>
-                    <tr>
-                      <td
-                        className="text-secondary fs-5"
-                        rowSpan={users.length}
-                      >
-                        {roleName}
-                      </td>
-                      {/* Display the 1st colleague in the same line */}
-                      <td className="text-secondary">{users[0].userpic}</td>
-                      <td className="btn-group text-center w-100">
-                        <input
-                          type="submit"
-                          className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
-                          value="Edit"
-                          style={{ backgroundColor: "#3b798c" }}
-                        />
-                        <input
-                          type="submit"
-                          className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
-                          value="Delete"
-                          style={{ backgroundColor: "#3b798c" }}
-                          onClick={() =>
-                            handleDeleteUser(users[0].userid, roleName)
-                          }
-                        />
-                      </td>
-                    </tr>
-                    {users.slice(1).map((user) => (
+                    {users.map((user, index) => (
                       <tr key={user.userid}>
-                        <td className="text-secondary">{user.userpic}</td>
-                        <td className="btn-group text-center w-100">
-                          <input
-                            className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
-                            value="Edit"
-                            style={{ backgroundColor: "#3b798c" }}
-                          />
-                          <input
-                            className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
-                            value="Delete"
-                            style={{ backgroundColor: "#3b798c" }}
-                            onClick={() =>
-                              handleDeleteUser(user.userid, roleName)
-                            }
-                          />
-                        </td>
+                        {index === 0 && (
+                          <td
+                            className="text-secondary fs-5"
+                            rowSpan={users.length}
+                          >
+                            {roleName}
+                          </td>
+                        )}
+                        {isEditing && editUser.userid === user.userid ? (
+                          <>
+                            <td className="text-secondary">
+                              <input
+                                className="py-1 border w-100"
+                                style={{ color: "#3b798c" }}
+                                type="text"
+                                name="userpic"
+                                value={editUser.userpic}
+                                onChange={handleChange}
+                                required
+                              />
+                            </td>
+                            <td className="btn-group text-center w-100">
+                              <input
+                                type="submit"
+                                className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
+                                value="Save"
+                                onClick={handleSubmit}
+                                style={{ backgroundColor: "#3b798c" }}
+                              />
+                              <button
+                                className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
+                                onClick={() => setIsEditing(false)}
+                                style={{ backgroundColor: "#aa5c55" }}
+                              >
+                                Cancel
+                              </button>
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td className="text-secondary">{user.userpic}</td>
+                            <td className="btn-group text-center w-100">
+                              <input
+                                className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
+                                value="Edit"
+                                style={{ backgroundColor: "#3b798c" }}
+                                onClick={() => handleEditUser(user)}
+                              />
+                              <input
+                                type="button"
+                                className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
+                                value="Delete"
+                                style={{ backgroundColor: "#3b798c" }}
+                                onClick={() =>
+                                  handleDeleteUser(user.userid, roleName)
+                                }
+                              />
+                            </td>
+                          </>
+                        )}
                       </tr>
                     ))}
                   </React.Fragment>
