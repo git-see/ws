@@ -9,11 +9,6 @@ export default function TasksByRole() {
   const [project, setProject] = useState();
   const [role, setRole] = useState();
   const [editingTaskId, setEditingTaskId] = useState(null);
-  const [editedTask, setEditedTask] = useState({
-    taskstart: "",
-    taskend: "",
-    taskcomment: "",
-  });
   const [confirmDeleteTaskId, setConfirmDeleteTaskId] = useState(null);
 
   useEffect(() => {
@@ -39,17 +34,33 @@ export default function TasksByRole() {
   // Update
   const startEditing = (task) => {
     setEditingTaskId(task.taskid);
-    setEditedTask({
-      taskstart: task.taskstart,
-      taskend: task.taskend,
-      taskcomment: task.taskcomment,
-    });
-    setConfirmDeleteTaskId(null); // Reset delete confirmation
   };
 
-  const handleEditChange = (e) => {
+  const handleEditChange = async (e, taskId) => {
     const { name, value } = e.target;
-    setEditedTask((prevState) => ({ ...prevState, [name]: value }));
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.taskid === taskId ? { ...task, [name]: value } : task
+      )
+    );
+
+    // If the changed field is the task status, it also needs to update `taskstatus`
+    if (name.startsWith("taskstatus-")) {
+      const updatedTask = tasks.find((task) => task.taskid === taskId);
+
+      // Update task status in the DB
+      await axios.put(`http://localhost:8000/api/update-task/${taskId}`, {
+        ...updatedTask,
+        taskstatus: value,
+      });
+
+      // Also update the task status in the local state
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.taskid === taskId ? { ...task, taskstatus: value } : task
+        )
+      );
+    }
   };
 
   const cancelEditing = () => {
@@ -57,9 +68,10 @@ export default function TasksByRole() {
   };
 
   const saveChanges = async (taskId) => {
+    const taskToUpdate = tasks.find((task) => task.taskid === taskId);
     await axios.put(
       `http://localhost:8000/api/update-task/${taskId}`,
-      editedTask
+      taskToUpdate
     );
     setEditingTaskId(null);
     const response = await axios.get(
@@ -87,6 +99,14 @@ export default function TasksByRole() {
 
   const cancelDelete = () => {
     setConfirmDeleteTaskId(null);
+  };
+
+  const handleRadioChange = (e, task) => {
+    if (editingTaskId === null) {
+      alert('Click the "Edit" button to change the status.');
+    } else {
+      handleEditChange(e, task.taskid);
+    }
   };
 
   return (
@@ -118,7 +138,7 @@ export default function TasksByRole() {
         </div>
       </div>
       <div>
-        <div className="container">
+        <div className="container align-items-stretch">
           <div className="row">
             {tasks.length > 0 ? (
               tasks.map((task) => (
@@ -126,7 +146,7 @@ export default function TasksByRole() {
                   className="card-group col-md-4 col-sm-6 col-xs-12 mt-4 mb-5"
                   key={task.taskid}
                 >
-                  <div className="card word-wrap p-2 text-secondary custom-box-shadow">
+                  <div className="card word-wrap p-2 text-secondary custom-box-shadow d-flex flex-column">
                     <div className="card-group rounded-3">
                       <h2 className="w-100 p-2 text-secondary fs-3 text-center border border-1 rounded-2 custom-box-shadow">
                         {task.userpic}
@@ -152,16 +172,20 @@ export default function TasksByRole() {
                                 className="py-1"
                                 type="text"
                                 name="taskstart"
-                                value={editedTask.taskstart}
-                                onChange={handleEditChange}
+                                value={task.taskstart}
+                                onChange={(e) =>
+                                  handleEditChange(e, task.taskid)
+                                }
                               />
                               <input
                                 style={{ color: "#3b798c" }}
                                 className="py-1"
                                 type="text"
                                 name="taskend"
-                                value={editedTask.taskend}
-                                onChange={handleEditChange}
+                                value={task.taskend}
+                                onChange={(e) =>
+                                  handleEditChange(e, task.taskid)
+                                }
                               />
                             </>
                           ) : (
@@ -185,8 +209,8 @@ export default function TasksByRole() {
                               style={{ color: "#3b798c" }}
                               className="py-1"
                               name="taskcomment"
-                              value={editedTask.taskcomment}
-                              onChange={handleEditChange}
+                              value={task.taskcomment}
+                              onChange={(e) => handleEditChange(e, task.taskid)}
                             />
                           ) : (
                             task.taskcomment
@@ -194,76 +218,126 @@ export default function TasksByRole() {
                         </div>
                       </div>
                     </div>
-                    <div>
-                      <div className="card-footer d-flex justify-content-around py-2 mt-4 p-3">
-                        <div className="w-100 d-flex justify-content-around">
-                          {editingTaskId === task.taskid ? (
-                            <>
-                              <button
-                                type="button"
-                                className="btn border-0 mx-2 px-3 py-2 w-100 text-white"
-                                style={{ backgroundColor: "#46523f" }}
-                                onClick={() => saveChanges(task.taskid)}
-                              >
-                                Save
-                              </button>
-                              <button
-                                type="button"
-                                className="btn border-0 px-2 py-2 w-100 text-white"
-                                style={{ backgroundColor: "#aa5c55" }}
-                                onClick={cancelEditing}
-                              >
-                                Cancel
-                              </button>
-                            </>
-                          ) : (
-                            <>
+
+                    <div className="d-flex justify-content-center mt-3">
+                      <label className="me-2">
+                        <input
+                          type="radio"
+                          name={`taskstatus-${task.taskid}`}
+                          value="Awaiting"
+                          checked={task.taskstatus === "Awaiting"}
+                          onChange={(e) => handleRadioChange(e, task)}
+                        />
+                        Awaiting
+                      </label>
+                      <label className="me-2">
+                        <input
+                          type="radio"
+                          name={`taskstatus-${task.taskid}`}
+                          value="In Progress"
+                          checked={task.taskstatus === "In Progress"}
+                          onChange={(e) => handleRadioChange(e, task)}
+                        />
+                        In Progress
+                      </label>
+                      <label className="me-2">
+                        <input
+                          type="radio"
+                          name={`taskstatus-${task.taskid}`}
+                          value="Completed"
+                          checked={task.taskstatus === "Completed"}
+                          onChange={(e) => handleRadioChange(e, task)}
+                        />
+                        Completed
+                      </label>
+                    </div>
+
+                    <div className="card-footer d-flex justify-content-around py-2 mt-4 p-3 flex-grow-1">
+                      <div className="w-100 d-flex justify-content-around">
+                        {editingTaskId === task.taskid ? (
+                          <>
+                            <button
+                              type="button"
+                              className="btn border-0 mx-2 px-3 py-2 w-100 text-white"
+                              style={{
+                                backgroundColor: "#46523f",
+                                height: "40px",
+                              }}
+                              onClick={() => saveChanges(task.taskid)}
+                            >
+                              Save
+                            </button>
+                            <button
+                              type="button"
+                              className="btn border-0 px-2 py-2 w-100 text-white"
+                              style={{
+                                backgroundColor: "#aa5c55",
+                                height: "40px",
+                              }}
+                              onClick={cancelEditing}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              className="btn text-white mx-1 border-0 px-3 py-2 w-100"
+                              style={{
+                                backgroundColor: "#3b798c",
+                                height: "40px",
+                              }}
+                              onClick={() => startEditing(task)}
+                            >
+                              Edit
+                            </button>
+                            {confirmDeleteTaskId !== task.taskid && (
                               <button
                                 type="button"
                                 className="btn text-white mx-1 border-0 px-3 py-2 w-100"
-                                style={{ backgroundColor: "#3b798c" }}
-                                onClick={() => startEditing(task)}
+                                style={{
+                                  backgroundColor: "#3b798c",
+                                  height: "40px",
+                                }}
+                                onClick={() => handleDeleteClick(task.taskid)}
                               >
-                                Edit
+                                Delete
                               </button>
-                              {confirmDeleteTaskId !== task.taskid && ( // Show Delete button only if not confirming delete
-                                <button
-                                  type="button"
-                                  className="btn text-white mx-1 border-0 px-3 py-2 w-100"
-                                  style={{ backgroundColor: "#3b798c" }}
-                                  onClick={() => handleDeleteClick(task.taskid)}
-                                >
-                                  Delete
-                                </button>
-                              )}
-                            </>
-                          )}
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    {confirmDeleteTaskId === task.taskid && (
+                      <div className="text-danger text-center">
+                        Are you sure?
+                        <br />
+                        Be careful, this action is irreversible!
+                        <div className="d-flex justify-content-around my-3">
+                          <button
+                            className="btn text-white px-5"
+                            style={{
+                              backgroundColor: "#aa5c55",
+                              height: "40px",
+                            }}
+                            onClick={confirmDelete}
+                          >
+                            Yes
+                          </button>
+                          <button
+                            className="btn text-white px-5"
+                            style={{
+                              backgroundColor: "#3b798c",
+                              height: "40px",
+                            }}
+                            onClick={cancelDelete}
+                          >
+                            No
+                          </button>
                         </div>
                       </div>
-                      {confirmDeleteTaskId === task.taskid && (
-                        <div className="text-danger text-center">
-                          Are you sure?
-                          <br />
-                          Be careful, this action is irreversible!
-                          <div className="d-flex justify-content-around my-3">
-                            <button
-                              className="btn text-white px-5"
-                              style={{ backgroundColor: "#aa5c55" }}
-                              onClick={confirmDelete}
-                            >
-                              Yes
-                            </button>
-                            <button
-                              className="btn text-white px-5"
-                              style={{ backgroundColor: "#3b798c" }}
-                              onClick={cancelDelete}
-                            >
-                              No
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
               ))
