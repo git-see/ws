@@ -333,17 +333,21 @@ app.post("/api/add-task", (req, res) => {
 // Update a task
 app.put("/api/update-task/:id", (req, res) => {
   const taskId = req.params.id;
-  const { taskstart, taskend, taskcomment } = req.body;
+  const { taskstart, taskend, taskcomment, taskstatus } = req.body;
   const request =
-    "UPDATE task SET taskstart = ?, taskend = ?, taskcomment = ? WHERE taskid = ?";
+    "UPDATE task SET taskstart = ?, taskend = ?, taskcomment = ?, taskstatus = ? WHERE taskid = ?";
 
-  db.query(request, [taskstart, taskend, taskcomment, taskId], (error, _) => {
-    if (error) {
-      console.log(error);
-      return res.status(500).send("Error: The task could not be updated");
+  db.query(
+    request,
+    [taskstart, taskend, taskcomment, taskstatus, taskId],
+    (error, _) => {
+      if (error) {
+        console.log(error);
+        return res.status(500).send("Error: The task could not be updated");
+      }
+      res.status(200).send("Task successfully updated !");
     }
-    res.status(200).send("Task successfully updated !");
-  });
+  );
 });
 
 // Delete a task with condition (irreversible)
