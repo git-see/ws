@@ -109,6 +109,14 @@ export default function TasksByRole() {
     }
   };
 
+  // Function to format date and time
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    const formattedDate = date.toISOString().split("T")[0]; // Get the date part only (YYYY-MM-DD)
+    const formattedTime = date.toTimeString().split(" ")[0].slice(0, 5); // Get the time part only (HH:MM)
+    return `${formattedDate} ${formattedTime}`; // Combine date and time for input
+  };
+
   return (
     <div className="w-100">
       <div className="col-12">
@@ -164,15 +172,15 @@ export default function TasksByRole() {
                           <p>Start :</p>
                           <p>Delivery :</p>
                         </div>
-                        <div className="d-flex justify-content-between fst-italic">
+                        <div className="d-flex justify-content-between mx-5 fst-italic">
                           {editingTaskId === task.taskid ? (
                             <>
                               <input
                                 style={{ color: "#3b798c" }}
                                 className="py-1"
-                                type="text"
+                                type="datetime-local"
                                 name="taskstart"
-                                value={task.taskstart}
+                                value={formatDateTime(task.taskstart)}
                                 onChange={(e) =>
                                   handleEditChange(e, task.taskid)
                                 }
@@ -180,9 +188,9 @@ export default function TasksByRole() {
                               <input
                                 style={{ color: "#3b798c" }}
                                 className="py-1"
-                                type="text"
+                                type="datetime-local"
                                 name="taskend"
-                                value={task.taskend}
+                                value={formatDateTime(task.taskend)}
                                 onChange={(e) =>
                                   handleEditChange(e, task.taskid)
                                 }
@@ -190,8 +198,8 @@ export default function TasksByRole() {
                             </>
                           ) : (
                             <>
-                              <p>{task.taskstart}</p>
-                              <p>{task.taskend}</p>
+                              <p>{formatDateTime(task.taskstart)}</p>
+                              <p>{formatDateTime(task.taskend)}</p>
                             </>
                           )}
                         </div>
