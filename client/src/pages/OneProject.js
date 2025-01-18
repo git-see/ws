@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, NavLink } from "react-router-dom";
-
 import axios from "axios";
 import Menu from "../components/Menu";
 
@@ -24,6 +23,14 @@ export default function OneProject() {
   }, [projectId]);
 
   const uniqueRoles = {}; // Object to track displayed roles
+
+  // Function to format date and time
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    const formattedDate = date.toISOString().split("T")[0]; // Get the date part only (YYYY-MM-DD)
+    const formattedTime = date.toTimeString().split(" ")[0].slice(0, 5); // Get the time part only (HH:MM)
+    return `${formattedDate} ${formattedTime}`; // Combine date and time
+  };
 
   return (
     <div className="w-100 home">
@@ -81,8 +88,12 @@ export default function OneProject() {
                             {task.taskobjective}
                           </td>
                           <td className="text-secondary">{task.userpic}</td>
-                          <td className="text-secondary">{task.taskstart}</td>
-                          <td className="text-secondary">{task.taskend}</td>
+                          <td className="text-secondary">
+                            {formatDateTime(task.taskstart)}
+                          </td>
+                          <td className="text-secondary">
+                            {formatDateTime(task.taskend)}
+                          </td>
                           <td
                             className="opstatus fst-italic"
                             style={{
@@ -128,9 +139,12 @@ export default function OneProject() {
                             {task.taskobjective}
                           </td>
                           <td className="text-secondary">{task.userpic}</td>
-                          <td className="text-secondary">{task.taskstart}</td>
-                          <td className="text-secondary">{task.taskend}</td>
-
+                          <td className="text-secondary">
+                            {formatDateTime(task.taskstart)}
+                          </td>
+                          <td className="text-secondary">
+                            {formatDateTime(task.taskend)}
+                          </td>
                           <td
                             className="opstatus fst-italic"
                             style={{

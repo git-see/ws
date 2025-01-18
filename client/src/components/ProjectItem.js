@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 import axios from "axios";
 
 export default function ProjectItem(props) {
@@ -13,14 +12,26 @@ export default function ProjectItem(props) {
     projectname: "",
     projectstart: "",
     projectend: "",
+    projectstatus: "", // Ajout de projectstatus à l'état pour la mise à jour
     projectcomment: "",
   });
 
   const navigate = useNavigate();
 
+  // Function to format date to "YYYY-MM-DD HH:MM"
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+  };
+
   // Retrieve data from API before processing it
   const loadproject = async () => {
-    // Store the result of the HTTP GET request / Wait for the Axios query to complete
     const response = await axios.get("http://localhost:8000/api/get");
     setProjects(response.data);
   };
@@ -29,34 +40,39 @@ export default function ProjectItem(props) {
     loadproject();
   }, []);
 
-  // // Edit project
+  // Edit project
   const startEditing = (project) => {
     setEditingProjectId(project.projectid);
-    setEditedProject(project);
+    setEditedProject({
+      ...project,
+      projectstart: formatDate(project.projectstart),
+      projectend: formatDate(project.projectend),
+    });
   };
 
   // Changing input fields while editing
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditedProject((prevState) => ({
-      ...prevState, // Extend the previous state to preserve the other values
+      ...prevState,
       [name]: value,
     }));
   };
 
   // Cancel editing and reset editing state
   const cancelEditing = () => {
-    setEditingProjectId(null); // Reset the ID of the currently edited project
+    setEditingProjectId(null);
   };
 
   // Save changes
   const saveChanges = async (projectId) => {
+    // Ajout de projectstatus dans editedProject pour la mise à jour
     await axios.put(
       `http://localhost:8000/api/update/${projectId}`,
       editedProject
-    ); // Sending modified data to the API
-    setEditingProjectId(null); // Reset project ID after saving
-    loadproject(); // Reload projects with changes
+    );
+    setEditingProjectId(null);
+    loadproject(); // Recharger les projets après la mise à jour
   };
 
   // Show selected project
@@ -68,7 +84,7 @@ export default function ProjectItem(props) {
     <tbody>
       {projects.map((project) => (
         <tr key={project.projectid}>
-          {editingProjectId === project.projectid ? ( // Check if this project is being modified
+          {editingProjectId === project.projectid ? (
             <>
               <td>
                 <input
@@ -84,7 +100,7 @@ export default function ProjectItem(props) {
                 <input
                   style={{ color: "#3b798c" }}
                   className="py-1"
-                  type="text"
+                  type="datetime-local"
                   name="projectstart"
                   value={editedProject.projectstart}
                   onChange={handleEditChange}
@@ -94,7 +110,7 @@ export default function ProjectItem(props) {
                 <input
                   style={{ color: "#3b798c" }}
                   className="py-1"
-                  type="text"
+                  type="datetime-local"
                   name="projectend"
                   value={editedProject.projectend}
                   onChange={handleEditChange}
@@ -106,8 +122,8 @@ export default function ProjectItem(props) {
                   className="py-1"
                   type="text"
                   name="projectstatus"
-                  value={editedProject.projectstatus}
-                  readOnly
+                  value={editedProject.projectstatus} // Utilisation de editedProject pour projectstatus
+                  onChange={handleEditChange}
                 />
               </td>
               <td>
@@ -138,9 +154,13 @@ export default function ProjectItem(props) {
             </>
           ) : (
             <>
-              <td className="text-secondary">{project.projectname}</td>
-              <td className="text-secondary">{project.projectstart}</td>
-              <td className="text-secondary">{project.projectend}</td>
+              <td className="text-secondary fw-bold">{project.projectname}</td>
+              <td className="text-secondary">
+                {formatDate(project.projectstart)}
+              </td>
+              <td className="text-secondary">
+                {formatDate(project.projectend)}
+              </td>
               <td
                 className="fst-italic"
                 style={{

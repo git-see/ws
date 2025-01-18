@@ -1,10 +1,16 @@
 import { NavLink } from "react-router-dom";
-
 import Menu from "../components/Menu";
-
 import ProjectItem from "../components/ProjectItem";
 
 export default function AllProjects() {
+  // Function to format date and time
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    const formattedDate = date.toISOString().split("T")[0]; // Get the date part only (YYYY-MM-DD)
+    const formattedTime = date.toTimeString().split(" ")[0].slice(0, 5); // Get the time part only (HH:MM)
+    return `${formattedDate} ${formattedTime}`; // Combine date and time
+  };
+
   return (
     <div className="w-100">
       <div>
@@ -41,7 +47,7 @@ export default function AllProjects() {
                   <th className="px-5 pb-4">Action</th>
                 </tr>
               </thead>
-              <ProjectItem />
+              <ProjectItem formatDateTime={formatDateTime} />
             </table>
           </div>
         </div>

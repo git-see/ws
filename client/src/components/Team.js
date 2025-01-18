@@ -50,8 +50,8 @@ const Team = () => {
                   <tr key={user.userid}>
                     {index === 0 && (
                       <td
-                        className="border fs-5 px-5"
-                        style={{ color: " #42414d" }}
+                        className="border fw-bold px-5"
+                        style={{ color: " #7b5844" }}
                         rowSpan={users.length}
                       >
                         {roleName}

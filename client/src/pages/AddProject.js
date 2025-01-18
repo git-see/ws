@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import axios from "axios";
 import Menu from "../components/Menu";
 
@@ -16,8 +15,8 @@ export default function AddProject() {
     axios
       .post("http://localhost:8000/api/post", {
         projectname,
-        projectstart,
-        projectend,
+        projectstart: formatDate(projectstart),
+        projectend: formatDate(projectend),
         projectcomment,
       })
       .then((response) => {
@@ -33,6 +32,14 @@ export default function AddProject() {
       .catch((error) => {
         console.error("There was an error adding the project !", error);
       });
+  };
+
+  // Function to format date and time to "YYYY-MM-DD HH:MM"
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const formattedDate = date.toISOString().split("T")[0]; // Get the date part only (YYYY-MM-DD)
+    const formattedTime = date.toTimeString().split(" ")[0].slice(0, 5); // Get the time part only (HH:MM)
+    return `${formattedDate} ${formattedTime}`; // Combine date and time
   };
 
   return (
@@ -69,18 +76,17 @@ export default function AddProject() {
                   Start Date
                 </label>
                 <input
-                  className="form-control form-control-lg"
-                  type="date"
+                  style={{ color: "#3b798c" }}
+                  className="form-control form-control-lg fs-6 py-1"
+                  type="datetime-local"
                   name="projectstart"
                   id="projectstart"
-                  // From 2020 to 2099
-                  //pattern="^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(20[0-9]{2})\s([01][0-9]|2[0-3]):([0-5][0-9])$"
                   onChange={(e) => setProjectstart(e.target.value)}
                   value={projectstart}
                   required
                 />
                 <small className="text-secondary fst-italic">
-                  dd/mm/yyyy <strong>hh:mm</strong>
+                  <strong>dd/mm/yyyy</strong> hh:mm
                 </small>
               </div>
 
@@ -89,18 +95,17 @@ export default function AddProject() {
                   Delivery Date
                 </label>
                 <input
-                  className="form-control form-control-lg"
-                  type="date"
+                  style={{ color: "#3b798c" }}
+                  className="form-control form-control-lg fs-6 py-1"
+                  type="datetime-local"
                   name="projectend"
                   id="projectend"
-                  // From 2020 to 2099
-                  //pattern="^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(20[0-9]{2})\s([01][0-9]|2[0-3]):([0-5][0-9])$"
                   onChange={(e) => setProjectend(e.target.value)}
                   value={projectend}
                   required
                 />
                 <small className="text-secondary fst-italic">
-                  dd/mm/yyyy <strong>hh:mm</strong>
+                  <strong>dd/mm/yyyy</strong> hh:mm
                 </small>
               </div>
 

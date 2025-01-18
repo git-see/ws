@@ -57,12 +57,14 @@ export default function AddTask() {
     fetchUsersByRole();
   }, [roleId]);
 
-  const formatDate = (date) => {
+  const formatDateTime = (date) => {
     const d = new Date(date);
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
   const handleSubmit = async (e) => {
@@ -77,8 +79,8 @@ export default function AddTask() {
       return;
     }
 
-    const formattedTaskStart = formatDate(taskStart);
-    const formattedTaskEnd = formatDate(taskEnd);
+    const formattedTaskStart = formatDateTime(taskStart);
+    const formattedTaskEnd = formatDateTime(taskEnd);
 
     const taskData = {
       project_projectid: projectId,
@@ -191,7 +193,7 @@ export default function AddTask() {
               </label>
               <input
                 className="form-control form-control-lg text-secondary fs-6"
-                type="date"
+                type="datetime-local"
                 name="taskstart"
                 id="taskstart"
                 value={taskStart}
@@ -206,7 +208,7 @@ export default function AddTask() {
               </label>
               <input
                 className="form-control form-control-lg text-secondary fs-6"
-                type="date"
+                type="datetime-local"
                 name="taskend"
                 id="taskend"
                 value={taskEnd}

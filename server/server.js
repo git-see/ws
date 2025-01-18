@@ -109,13 +109,26 @@ app.get("/api/get-project/:projectId", (req, res) => {
 // Update a project
 app.put("/api/update/:id", (req, res) => {
   const projectId = req.params.id;
-  const { projectname, projectstart, projectend, projectcomment } = req.body;
+  const {
+    projectname,
+    projectstart,
+    projectend,
+    projectcomment,
+    projectstatus,
+  } = req.body;
   const request =
-    "UPDATE project SET projectname = ?, projectstart = ?, projectend = ?, projectcomment = ? WHERE projectid = ?";
+    "UPDATE project SET projectname = ?, projectstart = ?, projectend = ?, projectcomment = ?, projectstatus = ? WHERE projectid = ?";
 
   db.query(
     request,
-    [projectname, projectstart, projectend, projectcomment, projectId],
+    [
+      projectname,
+      projectstart,
+      projectend,
+      projectcomment,
+      projectstatus,
+      projectId,
+    ],
     (error, _) => {
       if (error) {
         console.log(error);
