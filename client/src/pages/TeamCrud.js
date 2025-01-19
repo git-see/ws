@@ -15,8 +15,19 @@ export default function TeamCrud() {
         const result = await response.json();
 
         // -------------------------- READ---------------------------------
+        // Fetch roles for users
+        const usersWithRoles = await Promise.all(
+          result.map(async (user) => {
+            const roleResponse = await fetch(
+              `http://localhost:8000/api/get-role/${user.user_roleid}`
+            );
+            const role = await roleResponse.json();
+            return { ...user, rolename: role.rolename };
+          })
+        );
+
         // Group users by role
-        const usersByRole = result.reduce((acc, user) => {
+        const usersByRole = usersWithRoles.reduce((acc, user) => {
           const roleName = user.rolename;
           if (!acc[roleName]) {
             acc[roleName] = [];
@@ -27,19 +38,42 @@ export default function TeamCrud() {
 
         setData(Object.entries(usersByRole));
       } catch (error) {
-        console.error("Error retrieving users :", error);
+        console.error("Error retrieving users:", error);
       }
     };
 
     fetchUsers();
   }, []);
 
-  // -------------------------- CREATE / UDPDATE ---------------------------------
   const handleAddColleague = () => {
     setShowForm(true);
+    setNewUser({ rolename: "", userpic: "" });
+    setIsEditing(false);
   };
 
-  // Handle input changes for both adding and editing users
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isEditing) {
+      // Update logic
+      await fetch(`http://localhost:8000/api/update-user/${editUser.userid}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editUser),
+      });
+    } else {
+      // Add logic
+      await fetch("http://localhost:8000/api/add-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newUser),
+      });
+    }
+    setShowForm(false);
+    setIsEditing(false);
+    // Fetch users again to refresh the list
+    // Call the fetchUsers function or update state as needed
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (isEditing) {
@@ -49,101 +83,23 @@ export default function TeamCrud() {
     }
   };
 
-  // Handle form submission for adding or updating users
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isEditing) {
-      // Handle user update
-      try {
-        const response = await fetch(
-          `http://localhost:8000/api/update-user/${editUser.userid}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(editUser),
-          }
-        );
-
-        if (!response.ok) throw new Error("Error updating user");
-
-        setIsEditing(false);
-        setEditUser(null);
-        await fetchUsers();
-      } catch (error) {
-        console.error("Error updating user :", error);
-      }
-    } else {
-      // Handle user addition
-      if (!newUser.rolename || !newUser.userpic) return; // Validate input
-
-      try {
-        const response = await fetch("http://localhost:8000/api/add-user", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newUser),
-        });
-
-        if (!response.ok) throw new Error("Error adding user");
-
-        setShowForm(false); // Hide form after submission
-        setNewUser({ rolename: "", userpic: "" });
-        await fetchUsers(); // Fetch updated user list
-      } catch (error) {
-        console.error("Error adding user :", error);
-      }
-    }
-  };
-
-  // Cancel adding or editing
   const handleCancel = () => {
-    setShowForm(false); // Hide form after cancel
-    setNewUser({ rolename: "", userpic: "" });
+    setShowForm(false);
     setIsEditing(false);
-    setEditUser(null);
   };
 
-  // Initialize editing state for a user
   const handleEditUser = (user) => {
-    setIsEditing(true);
     setEditUser(user);
+    setIsEditing(true);
+    setShowForm(true);
   };
 
-  // -------------------------- DELETE---------------------------------
-  const handleDeleteUser = async (userId, roleName) => {
-    try {
-      const response = await fetch(
-        `http://localhost:8000/api/delete-user/${userId}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Error deleting user");
-      }
-
-      await fetchUsers();
-    } catch (error) {
-      console.error("Error deleting user :", error);
-    }
-  };
-
-  const fetchUsers = async () => {
-    const response = await fetch("http://localhost:8000/api/get-users");
-    const result = await response.json();
-    const usersByRole = result.reduce((acc, user) => {
-      const roleName = user.rolename;
-      if (!acc[roleName]) {
-        acc[roleName] = [];
-      }
-      acc[roleName].push(user);
-      return acc;
-    }, {});
-    setData(Object.entries(usersByRole));
+  const handleDeleteUser = async (userid, roleName) => {
+    await fetch(`http://localhost:8000/api/delete-user/${userid}`, {
+      method: "DELETE",
+    });
+    // Fetch users again to refresh the list
+    // Call the fetchUsers function or update state as needed
   };
 
   return (
@@ -231,7 +187,7 @@ export default function TeamCrud() {
                             className="text-secondary fs-5"
                             rowSpan={users.length}
                           >
-                            {roleName}
+                            {roleName} {/* Affichage du rolename ici */}
                           </td>
                         )}
                         {isEditing && editUser.userid === user.userid ? (
@@ -249,7 +205,6 @@ export default function TeamCrud() {
                             </td>
                             <td className="btn-group text-center w-100">
                               <input
-                                type="submit"
                                 className="btn border-0 px-3 py-2 mx-2 w-25 text-white text-decoration-none w-50"
                                 value="Save"
                                 onClick={handleSubmit}
