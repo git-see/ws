@@ -8,6 +8,8 @@ import OneProject from "./pages/OneProject";
 import AddTask from "./pages/AddTask";
 import TasksByRole from "./pages/TasksByRole";
 import Auth from "./components/Auth";
+import Admin from "./pages/Admin";
+import Member from "./pages/Member";
 import { Navigate } from "react-router-dom";
 import "./css/app.css";
 
@@ -29,6 +31,22 @@ function App() {
           }
         />
         <Route path="/auth" element={<Auth />} />
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute>
+              <Admin />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/member"
+          element={
+            <PrivateRoute>
+              <Member />
+            </PrivateRoute>
+          }
+        />
         <Route
           path="/teamcrud"
           element={

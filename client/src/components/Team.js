@@ -9,8 +9,15 @@ const Team = () => {
         const response = await fetch("http://localhost:8000/api/get-users");
         const result = await response.json();
 
+        // Fetch roles for users
+        const usersWithRoles = await Promise.all(result.map(async (user) => {
+          const roleResponse = await fetch(`http://localhost:8000/api/get-role/${user.user_roleid}`);
+          const role = await roleResponse.json();
+          return { ...user, rolename: role.rolename };
+        }));
+
         // Group users by role
-        const usersByRole = result.reduce((acc, user) => {
+        const usersByRole = usersWithRoles.reduce((acc, user) => {
           const roleName = user.rolename;
           if (!acc[roleName]) {
             acc[roleName] = [];
@@ -57,10 +64,7 @@ const Team = () => {
                         {roleName}
                       </td>
                     )}
-                    <td
-                      className="border px-5"
-                      style={{ color: " #42414d" }}
-                    >
+                    <td className="border px-5" style={{ color: " #42414d" }}>
                       {user.userpic}
                     </td>
                   </tr>
