@@ -53,6 +53,10 @@ export default function TeamCrud() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!newUser.rolename || !newUser.userpic) {
+      alert("Please fill in all fields.");
+      return;
+    }
     if (isEditing) {
       // Update logic
       await fetch(`http://localhost:8000/api/update-user/${editUser.userid}`, {
@@ -98,8 +102,6 @@ export default function TeamCrud() {
     await fetch(`http://localhost:8000/api/delete-user/${userid}`, {
       method: "DELETE",
     });
-    // Fetch users again to refresh the list
-    // Call the fetchUsers function or update state as needed
   };
 
   return (
@@ -187,7 +189,7 @@ export default function TeamCrud() {
                             className="text-secondary fs-5"
                             rowSpan={users.length}
                           >
-                            {roleName} {/* Affichage du rolename ici */}
+                            {roleName}
                           </td>
                         )}
                         {isEditing && editUser.userid === user.userid ? (

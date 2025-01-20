@@ -1,4 +1,3 @@
-// Member.js
 import React, { useState } from "react";
 import Profile from "../components/Profile";
 import { NavLink } from "react-router-dom";
@@ -11,6 +10,29 @@ const Member = () => {
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     // Logic to change password...
+    // Ensure to validate and handle errors appropriately
+    if (!password) {
+      setError("Password cannot be empty.");
+      return;
+    }
+    // Assume there's an API endpoint to change the password
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/update-password/${user.userid}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ newPassword: password }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update password.");
+      }
+      setError("");
+      alert("Password updated successfully!");
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   return (

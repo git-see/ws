@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const Profile = ({
-  user,
-  newUserpic,
-  setNewUserpic,
-  newPassword,
-  setNewPassword,
-  handleUpdateUser,
-  error,
-}) => {
+const Profile = ({ user, newUserpic, setNewUserpic, error }) => {
   const [roleName, setRoleName] = useState("");
+  const [localPassword, setLocalPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => {
     const fetchRoleName = async () => {
@@ -30,13 +24,48 @@ const Profile = ({
     }
   }, [user.user_roleid]);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!localPassword || !newPassword) {
+      alert("Please enter both current and new password.");
+      return;
+    }
+
+    try {
+      // Call the new endpoint to update the password
+      const response = await axios.put(
+        `http://localhost:8000/api/update-password/${user.userid}`,
+        {
+          currentPassword: localPassword, // Send current password for verification
+          newPassword: newPassword, // Send new password to update
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Password updated successfully!");
+        // Reset the password fields
+        setLocalPassword("");
+        setNewPassword("");
+      }
+    } catch (err) {
+      console.error("Error updating password:", err);
+      alert(
+        "Error updating password: " +
+          (err.response && err.response.data.message
+            ? err.response.data.message
+            : "Please try again.")
+      );
+    }
+  };
+
   return (
     <div className="mt-5">
       <h3 className="text-center" style={{ color: "#7b5844" }}>
-        Update my password
+        Update My Password
       </h3>
       {error && <p className="text-danger">{error}</p>}
-      <form onSubmit={handleUpdateUser} className="authForm mb-5">
+      <form onSubmit={handleSubmit} className="authForm mb-5">
         <div className="mb-4">
           <label htmlFor="userpic" className="form-label">
             Name User:
@@ -64,13 +93,27 @@ const Profile = ({
         </div>
         <div className="mb-4">
           <label htmlFor="userPassword" className="form-label">
-            Password:
+            Current Password:
           </label>
           <input
             type="password"
             className="form-control"
             style={{ color: "#42414d" }}
             id="userPassword"
+            value={localPassword}
+            onChange={(e) => setLocalPassword(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label htmlFor="newPassword" className="form-label">
+            New Password:
+          </label>
+          <input
+            type="password"
+            className="form-control"
+            style={{ color: "#42414d" }}
+            id="newPassword"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             required
@@ -81,7 +124,7 @@ const Profile = ({
           className="btn text-white"
           style={{ backgroundColor: "#7b5844" }}
         >
-          To update
+          To Update
         </button>
       </form>
     </div>
