@@ -1,13 +1,12 @@
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
-// Create the application with express
+const bcrypt = require("bcrypt");
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// Connect database with server
 const db = mysql.createPool({
   host: "localhost",
   user: "root",
@@ -17,24 +16,60 @@ const db = mysql.createPool({
 
 // --------------------- Auth Routes ---------------------
 // Login
-app.post("/api/login", (req, res) => {
+app.post("/api/login", async (req, res) => {
   const { userpic, password } = req.body;
 
-  const query = "SELECT * FROM user WHERE userpic = ? AND password = ?";
-  db.query(query, [userpic, password], (error, result) => {
+  const query = "SELECT * FROM user WHERE userpic = ?";
+  db.query(query, [userpic], async (error, result) => {
     if (error) {
       return res.status(500).send("Error during authentication");
     }
     if (result.length > 0) {
-      // Authentication successful, return user data or token
-      res.status(200).send(result[0]);
+      const user = result[0];
+      const match = await bcrypt.compare(password, user.password);
+      if (match) {
+        res.status(200).send(user);
+      } else {
+        res.status(401).send("Authentication failed!");
+      }
     } else {
       res.status(401).send("Authentication failed!");
     }
   });
 });
 
-// Regsiter
+// Update password
+app.put("/api/update-password/:id", async (req, res) => {
+  const userId = req.params.id;
+  const { currentPassword, newPassword } = req.body;
+
+  const query = "SELECT * FROM user WHERE userid = ?";
+  db.query(query, [userId], async (error, result) => {
+    if (error) {
+      return res.status(500).send("Error retrieving user");
+    }
+
+    if (result.length > 0) {
+      const user = result[0];
+      const match = await bcrypt.compare(currentPassword, user.password);
+      if (match) {
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        const updateQuery = "UPDATE user SET password = ? WHERE userid = ?";
+        db.query(updateQuery, [hashedNewPassword, userId], (updateError) => {
+          if (updateError) {
+            console.error(updateError);
+            return res.status(500).send("Error updating password");
+          }
+          res.status(200).send("Password updated successfully");
+        });
+      } else {
+        res.status(401).send("Current password is incorrect");
+      }
+    } else {
+      res.status(404).send("User not found");
+    }
+  });
+});
 
 // --------------------- Projects Routes ---------------------
 // READ all projects
@@ -50,12 +85,10 @@ app.post("/api/post", (req, res) => {
   const { projectname, projectstart, projectend, projectcomment } = req.body;
   const request =
     "INSERT INTO project (projectname, projectstart, projectend, projectcomment) VALUES (?, ?, ?, ?)";
-
   db.query(
     request,
     [projectname, projectstart, projectend, projectcomment],
-    (error, _) => {
-      // Replace 'result' with '_' as not necessary
+    (error) => {
       if (error) {
         console.log(error);
         return res.status(500).send("Error: The project could not be created");
@@ -65,21 +98,11 @@ app.post("/api/post", (req, res) => {
   );
 });
 
-// Show selected project
+// Read One- show selected project
 app.get("/api/get-tasks/:projectId", (req, res) => {
   const projectId = req.params.projectId;
-  const request = `
-    SELECT 
-      task.*, 
-      role.rolename,
-      project.projectname, 
-      user.userpic
-    FROM task
-    JOIN role ON task.role_roleid = role.roleid
-    JOIN project ON task.project_projectid = project.projectid
-    LEFT JOIN user ON task.user_userid = user.userid
-    WHERE task.project_projectid = ?
-  `;
+  const request =
+    "SELECT task.*, role.rolename, project.projectname, user.userpic FROM task JOIN role ON task.role_roleid = role.roleid JOIN project ON task.project_projectid = project.projectid LEFT JOIN user ON task.user_userid = user.userid WHERE task.project_projectid = ?";
   db.query(request, [projectId], (error, result) => {
     if (error) {
       console.error(error);
@@ -91,9 +114,8 @@ app.get("/api/get-tasks/:projectId", (req, res) => {
 
 // Get project by ID
 app.get("/api/get-project/:projectId", (req, res) => {
-  const projectId = req.params.projectId; // Get role ID from URL
+  const projectId = req.params.projectId;
   const request = "SELECT * FROM project WHERE projectid = ?";
-
   db.query(request, [projectId], (error, result) => {
     if (error) {
       console.error(error);
@@ -118,7 +140,6 @@ app.put("/api/update/:id", (req, res) => {
   } = req.body;
   const request =
     "UPDATE project SET projectname = ?, projectstart = ?, projectend = ?, projectcomment = ?, projectstatus = ? WHERE projectid = ?";
-
   db.query(
     request,
     [
@@ -129,7 +150,7 @@ app.put("/api/update/:id", (req, res) => {
       projectstatus,
       projectId,
     ],
-    (error, _) => {
+    (error) => {
       if (error) {
         console.log(error);
         return res.status(500).send("Error: The project could not be updated");
@@ -156,7 +177,6 @@ app.get("/api/get-roles", (req, res) => {
 app.get("/api/get-role/:roleId", (req, res) => {
   const roleId = req.params.roleId;
   const request = "SELECT * FROM role WHERE roleid = ?";
-
   db.query(request, [roleId], (error, result) => {
     if (error) {
       console.error(error);
@@ -186,7 +206,6 @@ app.get("/api/get-users", (req, res) => {
 app.get("/api/get-users-by-role/:roleId", (req, res) => {
   const roleId = req.params.roleId;
   const request = "SELECT * FROM user WHERE user_roleid = ?";
-
   db.query(request, [roleId], (error, result) => {
     if (error) {
       console.error(error);
@@ -197,8 +216,16 @@ app.get("/api/get-users-by-role/:roleId", (req, res) => {
 });
 
 // Add a user with role creation if necessary
-app.post("/api/add-user", (req, res) => {
-  const { rolename, userpic } = req.body;
+app.post("/api/add-user", async (req, res) => {
+  const { rolename, userpic, password } = req.body;
+
+  // Validate incoming data
+  if (!userpic || !rolename || !password) {
+    return res.status(400).send("All fields are required.");
+  }
+
+  // Hash the password
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   // Check if the role exists
   const roleCheckQuery = "SELECT roleid FROM role WHERE rolename = ?";
@@ -212,7 +239,9 @@ app.post("/api/add-user", (req, res) => {
     let roleId;
 
     if (result.length > 0) {
-      roleId = result[0].roleid; // Role exists
+      // Role exists
+      roleId = result[0].roleid;
+      insertUser(userpic, hashedPassword, roleId, res);
     } else {
       // Role does not exist, create it
       const insertRoleQuery = "INSERT INTO role (rolename) VALUES (?)";
@@ -222,38 +251,35 @@ app.post("/api/add-user", (req, res) => {
           return res.status(500).send("Error creating role");
         }
         roleId = insertResult.insertId; // Get the new role ID
-
-        // Now insert the user
-        const insertUserQuery =
-          "INSERT INTO user (userpic, user_roleid) VALUES (?, ?)";
-        db.query(insertUserQuery, [userpic, roleId], (userError) => {
-          if (userError) {
-            console.error("Error adding user:", userError);
-            return res.status(500).send("Error: The user could not be created");
-          }
-          res.status(200).send("User added successfully !");
-        });
+        insertUser(userpic, hashedPassword, roleId, res);
       });
-      return; // Important: return to prevent executing the next lines of code
     }
-
-    // Insert the user if the role already exists
-    const insertUserQuery =
-      "INSERT INTO user (userpic, user_roleid) VALUES (?, ?)";
-    db.query(insertUserQuery, [userpic, roleId], (userError) => {
-      if (userError) {
-        console.error("Error adding user:", userError);
-        return res.status(500).send("Error: The user could not be created");
-      }
-      res.status(200).send("User added successfully !");
-    });
   });
 });
+
+// Function to insert a user
+function insertUser(userpic, password, roleId, res) {
+  const insertUserQuery =
+    "INSERT INTO user (userpic, password, user_roleid) VALUES (?, ?, ?)";
+  db.query(insertUserQuery, [userpic, password, roleId], (userError) => {
+    if (userError) {
+      console.error("Error adding user:", userError);
+      return res.status(500).send("Error: The user could not be created");
+    }
+    res.status(200).send("User added successfully !");
+  });
+}
 
 // Update a user
 app.put("/api/update-user/:id", (req, res) => {
   const userId = req.params.id;
   const { rolename, userpic } = req.body;
+
+  // Validate incoming data
+  if (!userpic || !rolename) {
+    return res.status(400).send("All fields are required.");
+  }
+
   const request =
     "UPDATE user SET userpic = ?, user_roleid = (SELECT roleid FROM role WHERE rolename = ?) WHERE userid = ?";
 
@@ -270,8 +296,7 @@ app.put("/api/update-user/:id", (req, res) => {
 app.delete("/api/delete-user/:id", (req, res) => {
   const userId = req.params.id;
   const request = "DELETE FROM user WHERE userid = ?";
-
-  db.query(request, [userId], (error, result) => {
+  db.query(request, [userId], (error) => {
     if (error) {
       console.error(error);
       return res.status(500).send("Error: The user could not be deleted");
@@ -284,15 +309,9 @@ app.delete("/api/delete-user/:id", (req, res) => {
 // Get tasks by role and user
 app.get("/api/get-tasks-by-role/:projectId/:roleId", (req, res) => {
   const projectId = req.params.projectId;
-  const roleId = req.params.roleId; // Get role ID from URL
-  const request = `
-      SELECT task.*, role.rolename, project.projectname, user.userpic 
-      FROM task 
-      JOIN role ON task.role_roleid = role.roleid 
-      JOIN project ON task.project_projectid = project.projectid 
-      JOIN user ON task.user_userid = user.userid
-      WHERE task.project_projectid = ? AND task.role_roleid = ?;
-  `;
+  const roleId = req.params.roleId;
+  const request =
+    "SELECT task.*, role.rolename, project.projectname, user.userpic FROM task JOIN role ON task.role_roleid = role.roleid JOIN project ON task.project_projectid = project.projectid JOIN user ON task.user_userid = user.userid WHERE task.project_projectid = ? AND task.role_roleid = ?";
 
   db.query(request, [projectId, roleId], (error, result) => {
     if (error) {
@@ -315,7 +334,6 @@ app.post("/api/add-task", (req, res) => {
     taskcomment,
     taskstatus,
   } = req.body;
-
   const request =
     "INSERT INTO task (project_projectid, role_roleid, user_userid, taskobjective, taskstart, taskend, taskcomment, taskstatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -331,7 +349,7 @@ app.post("/api/add-task", (req, res) => {
       taskcomment,
       taskstatus,
     ],
-    (error, result) => {
+    (error) => {
       if (error) {
         console.error("Erreur lors de l'ajout de la tâche :", error);
         return res
@@ -353,7 +371,7 @@ app.put("/api/update-task/:id", (req, res) => {
   db.query(
     request,
     [taskstart, taskend, taskcomment, taskstatus, taskId],
-    (error, _) => {
+    (error) => {
       if (error) {
         console.log(error);
         return res.status(500).send("Error: The task could not be updated");
@@ -368,7 +386,7 @@ app.delete("/api/delete-task/:id", (req, res) => {
   const taskId = req.params.id;
   const request = "DELETE FROM task WHERE taskid = ?";
 
-  db.query(request, [taskId], (error, result) => {
+  db.query(request, [taskId], (error) => {
     if (error) {
       console.error(error);
       return res.status(500).send("Error: The task could not be deleted");
@@ -377,5 +395,4 @@ app.delete("/api/delete-task/:id", (req, res) => {
   });
 });
 
-// Start on port 8000
 app.listen(8000);
